@@ -2,6 +2,7 @@
 	import { formatMediaFileSize } from '$lib/mediaFileSizeFormatter';
 	import { convertFile, batchConvert } from '$lib/ffmpeg';
 	import { LoaderCircle, Sun, Moon } from 'lucide-svelte';
+	import { Switch } from '$components/ui/switch';
 	import { Button } from '$components/ui/button';
 	import { Label } from '$components/ui/label';
 	import { Input } from '$components/ui/input';
@@ -211,8 +212,8 @@
 		}
 	}
 
-	mediaType.subscribe((value) => {
-		switch (value) {
+	function updateFormatOptions() {
+		switch ($mediaType) {
 			case FileType.Image:
 				formatOptions.set(
 					$advancedMode ? [...commonImageFormats, ...extendedImageFormats] : commonImageFormats
@@ -232,6 +233,13 @@
 				formatOptions.set([]);
 				break;
 		}
+	}
+
+	mediaType.subscribe(() => {
+		updateFormatOptions();
+	});
+	advancedMode.subscribe(() => {
+		updateFormatOptions();
 	});
 </script>
 
@@ -256,10 +264,14 @@
 	</div>
 </div>
 <section class="container flex flex-col mx-auto py-8">
-	<div class="my-4">
+	<div class="my-4 flex flex-row gap-4 items-center justify-between">
 		<Button on:click={() => (batchMode = !batchMode)}>
 			{batchMode ? 'Switch to Single File Mode' : 'Switch to Batch Mode'}
 		</Button>
+		<div class="flex items-center space-x-2">
+			<Switch id="advanced-mode" bind:checked={$advancedMode} />
+			<Label for="advanced-mode">Advanced Mode</Label>
+		</div>
 	</div>
 
 	{#if batchMode}
