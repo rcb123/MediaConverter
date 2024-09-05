@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { formatMediaFileSize } from '$lib/mediaFileSizeFormatter';
 	import { convertFile, batchConvert } from '$lib/ffmpeg';
-	import { LoaderCircle } from 'lucide-svelte';
+	import { LoaderCircle, Sun, Moon } from 'lucide-svelte';
 	import { Button } from '$components/ui/button';
 	import { Label } from '$components/ui/label';
 	import { Input } from '$components/ui/input';
+	import { toggleMode } from 'mode-watcher';
 
 	import * as Select from '$components/ui/select';
 	import JSZip from 'jszip';
@@ -160,7 +161,18 @@
 </script>
 
 <section class="container flex flex-col mx-auto py-8">
-	<h1 class="text-2xl font-bold">Media Conversion Tool</h1>
+	<div class="flex flex-row justify-between gap-4">
+		<h1 class="text-2xl font-bold">Media Conversion Tool</h1>
+		<Button on:click={toggleMode} variant="ghost" size="icon">
+			<Sun
+				class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
+			/>
+			<Moon
+				class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
+			/>
+			<span class="sr-only">Toggle theme</span>
+		</Button>
+	</div>
 
 	<div class="my-4">
 		<Button on:click={() => (batchMode = !batchMode)}>
@@ -224,7 +236,7 @@
 				<input type="file" id="filepicker" accept="*" on:change={handleFileChange} class="hidden" />
 				<Label
 					for="filepicker"
-					class="text-xl md:text-2xl text-foreground hover:text-foreground/50 transition-colors cursor-pointer"
+					class="text-xl md:text-2xl hover:text-opacity-50 transition-colors cursor-pointer"
 				>
 					Drag file here or click to upload
 				</Label>
