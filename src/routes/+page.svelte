@@ -6,44 +6,56 @@
 	import { Label } from '$components/ui/label';
 	import { Input } from '$components/ui/input';
 	import { toggleMode } from 'mode-watcher';
+	import { writable } from 'svelte/store';
 
 	import * as Select from '$components/ui/select';
 	import JSZip from 'jszip';
+
+	const mediaType = writable<FileType | null>(null);
+	const formatOptions = writable<{ label: string; value: string }[]>([]);
+	const advancedMode = writable(false);
+	const error = writable<string | null>(null);
 
 	let downloadEl: Button;
 	let isDraggingOver: boolean = false;
 	let selectedFile: File | null = null;
 	let selectedFiles: File[] = [];
 	let previewUrl: string | null = null;
-	let previewType: string | null = null;
 	let format: string | null = null;
 	let resolution = '';
 	let bitrate = '';
 	let codec = '';
 	let conversionResult: string | null = null;
-	let error: string | null = null;
 	let batchMode = false;
 
-	let isImage = false;
-	let isVideo = false;
+	enum FileType {
+		Image = 'image',
+		Video = 'video',
+		Audio = 'audio'
+	}
 	let conversionProcessing = false;
 
 	// Format options for images and videos supported by ffmpeg
-	const imageFormats = [
+	const commonImageFormats = [
 		{ label: 'JPEG', value: 'jpeg' },
 		{ label: 'PNG', value: 'png' },
 		{ label: 'GIF', value: 'gif' },
-		{ label: 'WEBP', value: 'webp' },
+		{ label: 'WEBP', value: 'webp' }
+	];
+	const extendedImageFormats = [
 		{ label: 'TIFF', value: 'tiff' },
 		{ label: 'BMP', value: 'bmp' },
 		{ label: 'ICO', value: 'ico' },
 		{ label: 'SVG', value: 'svg' }
 	];
-	const videoFormats = [
+
+	const commonVideoFormats = [
 		{ label: 'MP4', value: 'mp4' },
 		{ label: 'AVI', value: 'avi' },
 		{ label: 'MKV', value: 'mkv' },
-		{ label: 'MOV', value: 'mov' },
+		{ label: 'MOV', value: 'mov' }
+	];
+	const extendedVideoFormats = [
 		{ label: 'WMV', value: 'wmv' },
 		{ label: 'FLV', value: 'flv' },
 		{ label: 'WEBM', value: 'webm' },
@@ -69,26 +81,56 @@
 		{ label: 'AV1', value: 'av1' }
 	];
 
+	const commonAudioFormats = [
+		{ label: 'MP3', value: 'mp3' },
+		{ label: 'WAV', value: 'wav' },
+		{ label: 'AAC', value: 'aac' },
+		{ label: 'OGG', value: 'ogg' }
+	];
+	const extendedAudioFormats = [
+		{ label: 'FLAC', value: 'flac' },
+		{ label: 'WMA', value: 'wma' },
+		{ label: 'M4A', value: 'm4a' },
+		{ label: 'AIFF', value: 'aiff' },
+		{ label: 'ALAC', value: 'alac' },
+		{ label: 'AC3', value: 'ac3' },
+		{ label: 'AMR', value: 'amr' },
+		{ label: 'AU', value: 'au' },
+		{ label: 'MKA', value: 'mka' },
+		{ label: 'MID', value: 'mid' },
+		{ label: 'MP2', value: 'mp2' },
+		{ label: 'MPA', value: 'mpa' },
+		{ label: 'RA', value: 'ra' },
+		{ label: 'WV', value: 'wv' },
+		{ label: 'OPUS', value: 'opus' },
+		{ label: 'DTS', value: 'dts' },
+		{ label: 'EAC3', value: 'eac3' },
+		{ label: 'MPC', value: 'mpc' },
+		{ label: 'TAK', value: 'tak' },
+		{ label: 'TTA', value: 'tta' },
+		{ label: 'W64', value: 'w64' },
+		{ label: 'WV', value: 'wv' },
+		{ label: 'WMA', value: 'wma' }
+	];
+
 	const handleFileChange = (event: any) => {
+		error.set(null);
 		const file = event.target.files[0];
 		selectedFile = file;
 		if (selectedFile) {
 			const fileType = selectedFile.type;
 			if (fileType.startsWith('image/')) {
-				isImage = true;
-				isVideo = false;
+				mediaType.set(FileType.Image);
 				previewUrl = URL.createObjectURL(selectedFile);
-				previewType = 'image';
 			} else if (fileType.startsWith('video/')) {
-				isImage = false;
-				isVideo = true;
+				mediaType.set(FileType.Video);
 				previewUrl = URL.createObjectURL(selectedFile);
-				previewType = 'video';
+			} else if (fileType.startsWith('audio/')) {
+				mediaType.set(FileType.Audio);
+				previewUrl = URL.createObjectURL(selectedFile);
 			} else {
-				isImage = false;
-				isVideo = false;
+				mediaType.set(null);
 				previewUrl = null;
-				previewType = null;
 			}
 		}
 		console.log('File selected:', selectedFile);
@@ -97,6 +139,16 @@
 	const handleDrop = (event: any) => {
 		event.preventDefault();
 		const file = event.dataTransfer.files[0];
+		if (
+			!(
+				file.type.startsWith('image/') ||
+				file.type.startsWith('video/') ||
+				file.type.startsWith('audio/')
+			)
+		) {
+			error.set('Unsupported file type. Please select an image or video file.');
+			return;
+		}
 		selectedFile = file;
 		handleFileChange({ target: { files: [file] } });
 		isDraggingOver = false;
@@ -116,11 +168,11 @@
 		try {
 			// Ensure a file is selected before proceeding
 			if (!selectedFile && (!batchMode || !selectedFiles.length)) {
-				error = 'Please select a file to convert.';
+				error.set('Please select a file to convert.');
 				return;
 			}
 			if (!format) {
-				error = 'Please select a format to convert the file to.';
+				error.set('Please select a format to convert the file to.');
 				return;
 			}
 			conversionProcessing = true;
@@ -154,30 +206,56 @@
 			}
 		} catch (err) {
 			console.error(err);
-			error = 'Error occurred during conversion. Please try again.';
+			error.set('Error occurred during conversion. Please try again.');
 			conversionProcessing = false;
 		}
 	}
+
+	mediaType.subscribe((value) => {
+		switch (value) {
+			case FileType.Image:
+				formatOptions.set(
+					$advancedMode ? [...commonImageFormats, ...extendedImageFormats] : commonImageFormats
+				);
+				break;
+			case FileType.Video:
+				formatOptions.set(
+					$advancedMode ? [...commonVideoFormats, ...extendedVideoFormats] : commonVideoFormats
+				);
+				break;
+			case FileType.Audio:
+				formatOptions.set(
+					$advancedMode ? [...commonAudioFormats, ...extendedAudioFormats] : commonAudioFormats
+				);
+				break;
+			default:
+				formatOptions.set([]);
+				break;
+		}
+	});
 </script>
 
 <svelte:head>
 	<title>Media Conversion Tool</title>
 </svelte:head>
 
-<section class="container flex flex-col mx-auto py-8">
-	<div class="flex flex-row justify-between gap-4">
-		<h1 class="text-2xl font-bold">Media Conversion Tool</h1>
-		<Button on:click={toggleMode} variant="ghost" size="icon">
-			<Sun
-				class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
-			/>
-			<Moon
-				class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
-			/>
-			<span class="sr-only">Toggle theme</span>
-		</Button>
+<div class="flex flex-col">
+	<div class="w-full border-b border-foreground/20">
+		<section class="container flex flex-row justify-between gap-4 mx-auto py-4">
+			<h1 class="text-2xl font-semibold">Media Conversion Tool</h1>
+			<Button on:click={toggleMode} variant="ghost" size="icon">
+				<Sun
+					class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
+				/>
+				<Moon
+					class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
+				/>
+				<span class="sr-only">Toggle theme</span>
+			</Button>
+		</section>
 	</div>
-
+</div>
+<section class="container flex flex-col mx-auto py-8">
 	<div class="my-4">
 		<Button on:click={() => (batchMode = !batchMode)}>
 			{batchMode ? 'Switch to Single File Mode' : 'Switch to Batch Mode'}
@@ -191,15 +269,15 @@
 		<!-- Single File Mode -->
 		{#if selectedFile}
 			<div class="flex flex-col gap-4">
-				{#if previewUrl && previewType === 'image'}
-					<img
-						src={previewUrl}
-						alt="File preview"
-						class="w-fit max-w-full h-auto max-h-96 self-center"
-					/>
-				{:else if previewUrl && previewType === 'video'}
-					<!-- svelte-ignore a11y-media-has-caption -->
-					<video src={previewUrl} controls class="w-fit max-w-full h-auto max-h-96 self-center" />
+				{#if previewUrl}
+					{#if $mediaType === FileType.Image}
+						<img src={previewUrl} alt="File preview" class="preview" />
+					{:else if $mediaType === FileType.Video}
+						<!-- svelte-ignore a11y-media-has-caption -->
+						<video src={previewUrl} controls class="preview" />
+					{:else if $mediaType === FileType.Audio}
+						<audio src={previewUrl} controls class="preview" />
+					{/if}
 				{/if}
 				<div>
 					<p><strong>File Name:</strong> {selectedFile.name}</p>
@@ -210,10 +288,10 @@
 			</div>
 		{:else}
 			<div
-				class={`box-border flex flex-col h-fit w-full sm:w-3/4 min-w-96 text-center cursor-default items-center self-center border-2 border-dashed rounded-md bg-foreground/5 pb-16 pt-20 px-4 transition-all ${
+				class={`box-border flex flex-col h-fit w-full sm:w-3/4 text-center cursor-default items-center self-center border-2 rounded-md pb-16 pt-20 px-4 transition-all ${
 					isDraggingOver
-						? 'scale-[0.98] border-foreground ring-2 ring-foreground/50'
-						: 'border-foreground/40'
+						? 'border-transparent ring-2 scale-[1.01]'
+						: 'border-dashed border-foreground/40'
 				}`}
 				role="button"
 				tabindex="0"
@@ -237,7 +315,13 @@
 						/>
 					</svg>
 				</label>
-				<input type="file" id="filepicker" accept="*" on:change={handleFileChange} class="hidden" />
+				<input
+					type="file"
+					id="filepicker"
+					accept="image/*, video/*, audio/*"
+					on:change={handleFileChange}
+					class="hidden"
+				/>
 				<Label
 					for="filepicker"
 					class="text-xl md:text-2xl hover:text-opacity-50 transition-colors cursor-pointer"
@@ -248,12 +332,12 @@
 		{/if}
 	{/if}
 
-	{#if selectedFile && (isImage || isVideo)}
+	{#if selectedFile && $mediaType}
 		<div class="my-4">
 			<!-- svelte-ignore a11y-label-has-associated-control -->
 			<label>Format</label>
 			<Select.Root
-				items={isImage ? imageFormats : videoFormats}
+				items={$formatOptions}
 				onSelectedChange={(state) => {
 					if (state) {
 						format = state.value ? state.value : 'mp4';
@@ -265,14 +349,14 @@
 					<Select.Value placeholder="Format" />
 				</Select.Trigger>
 				<Select.Content>
-					{#each isImage ? imageFormats : videoFormats as { label, value }}
+					{#each $formatOptions as { label, value }}
 						<Select.Item {value}>{label}</Select.Item>
 					{/each}
 				</Select.Content>
 			</Select.Root>
 		</div>
 
-		{#if isVideo}
+		{#if $mediaType === FileType.Video}
 			<div class="my-4">
 				<!-- svelte-ignore a11y-label-has-associated-control -->
 				<label>Resolution (Optional)</label>
@@ -312,7 +396,17 @@
 		</Button>
 	{/if}
 
-	{#if error}
-		<div class="text-destructive">{error}</div>
+	{#if $error}
+		<div class="text-destructive">{$error}</div>
 	{/if}
 </section>
+
+<style>
+	.preview {
+		width: fit-content;
+		max-width: 100%;
+		height: auto;
+		max-height: 24rem;
+		align-self: center;
+	}
+</style>
