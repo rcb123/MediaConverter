@@ -368,7 +368,7 @@
 			</Select.Root>
 		</div>
 
-		{#if $mediaType === FileType.Video}
+		{#if $mediaType === FileType.Video && $advancedMode}
 			<div class="my-4">
 				<!-- svelte-ignore a11y-label-has-associated-control -->
 				<label>Resolution (Optional)</label>
