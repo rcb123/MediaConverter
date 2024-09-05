@@ -160,6 +160,10 @@
 	}
 </script>
 
+<svelte:head>
+	<title>Media Conversion Tool</title>
+</svelte:head>
+
 <section class="container flex flex-col mx-auto py-8">
 	<div class="flex flex-row justify-between gap-4">
 		<h1 class="text-2xl font-bold">Media Conversion Tool</h1>
