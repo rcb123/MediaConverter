@@ -4,7 +4,7 @@ import { defineConfig, type Plugin } from 'vite';
 const viteServerConfig: Plugin = {
 	name: 'log-request-middleware',
 	configureServer(server) {
-		server.middlewares.use((req, res, next) => {
+		server.middlewares.use((_req, res, next) => {
 			res.setHeader('Access-Control-Allow-Origin', '*');
 			res.setHeader('Access-Control-Allow-Methods', 'GET');
 			res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
