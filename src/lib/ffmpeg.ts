@@ -1,25 +1,28 @@
 import { FFmpeg } from '@ffmpeg/ffmpeg';
+// @ts-ignore
+import type { LogEvent } from '@ffmpeg/ffmpeg/dist/esm/types';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
 
-const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm';
-let ffmpegInstance: FFmpeg | null = null;
+const baseURL = 'https://unpkg.com/@ffmpeg/core-mt@0.12.6/dist/esm';
+let ffmpeg: FFmpeg | null = null;
 
 /**
  * Initializes FFmpeg if it's not already loaded.
  */
 async function initializeFFmpeg() {
-	if (!ffmpegInstance) {
-		ffmpegInstance = new FFmpeg();
+	if (!ffmpeg) {
+		ffmpeg = new FFmpeg();
 
 		// Attach a logging handler
-		ffmpegInstance.on('log', ({ type, message }) => {
+		ffmpeg.on('log', ({ type, message }: LogEvent) => {
 			console.log(`[${type}] ${message}`);
 		});
 
 		// Load FFmpeg with the correct core and wasm files
-		await ffmpegInstance.load({
+		await ffmpeg.load({
 			coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-			wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm')
+			wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+			workerURL: await toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, 'text/javascript')
 		});
 	}
 }
@@ -38,14 +41,14 @@ export async function convertFile(
 	options: { format: string; resolution?: string; bitrate?: string; codec?: string }
 ): Promise<{ file: Uint8Array; name: string }> {
 	await initializeFFmpeg();
-	if (!ffmpegInstance) {
+	if (!ffmpeg) {
 		throw new Error('FFmpeg not initialized');
 	}
 
 	const outputFileName = `${fileName.split('.')[0]}-converted.${options.format}`;
 
 	// Write the input file to FFmpeg's file system
-	await ffmpegInstance.writeFile(fileName, await fetchFile(file));
+	await ffmpeg.writeFile(fileName, await fetchFile(file));
 	console.log('File written to FFmpeg file system');
 
 	// Generate FFmpeg command
@@ -72,18 +75,18 @@ export async function convertFile(
 	console.log('Command generated:', command);
 
 	// Execute the FFmpeg command
-	await ffmpegInstance.exec(command);
+	await ffmpeg.exec(command);
 	console.log('Command executed');
 
 	// Read the output file
-	const outputData = await ffmpegInstance.readFile(outputFileName);
+	const outputData = await ffmpeg.readFile(outputFileName);
 	if (typeof outputData === 'string') {
 		throw new Error(`Failed to convert file: ${outputData}`);
 	}
 
 	// Clean up the virtual file system
-	await ffmpegInstance.deleteFile(fileName);
-	await ffmpegInstance.deleteFile(outputFileName);
+	await ffmpeg.deleteFile(fileName);
+	await ffmpeg.deleteFile(outputFileName);
 
 	return { file: outputData, name: outputFileName };
 }
