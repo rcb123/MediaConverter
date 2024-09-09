@@ -37,8 +37,7 @@
 
 	let downloadEl: Button;
 	let isDraggingOver: boolean = false;
-	let selectedFile: File | null = null;
-	let selectedFiles: File[] = [];
+	let selectedFiles: File[] | null = null;
 	let previewUrl: string | null = null;
 	let resolution = '';
 	let bitrate = '';
@@ -48,42 +47,51 @@
 
 	const handleFileChange = (event: any) => {
 		error.set(null);
-		const file = event.target.files[0];
-		selectedFile = file;
-		if (selectedFile) {
-			const fileType = selectedFile.type;
+		const files: File[] | null = event.target.files;
+		if (!files || !files.length) {
+			selectedFiles = [];
+			return;
+		}
+		selectedFiles = files;
+		if (selectedFiles[0]) {
+			const fileType = selectedFiles[0].type;
 			if (fileType.startsWith('image/')) {
 				mediaType.set(FileType.Image);
-				previewUrl = URL.createObjectURL(selectedFile);
+				previewUrl = URL.createObjectURL(selectedFiles[0]);
 			} else if (fileType.startsWith('video/')) {
 				mediaType.set(FileType.Video);
-				previewUrl = URL.createObjectURL(selectedFile);
+				previewUrl = URL.createObjectURL(selectedFiles[0]);
 			} else if (fileType.startsWith('audio/')) {
 				mediaType.set(FileType.Audio);
-				previewUrl = URL.createObjectURL(selectedFile);
+				previewUrl = URL.createObjectURL(selectedFiles[0]);
 			} else {
 				mediaType.set(null);
 				previewUrl = null;
 			}
 		}
-		console.log('File selected:', selectedFile);
+		console.log('File selected:', selectedFiles[0]);
 	};
 
 	const handleDrop = (event: any) => {
 		event.preventDefault();
-		const file = event.dataTransfer.files[0];
+		const files = event.dataTransfer.files;
+		if (!files || !files.length) {
+			selectedFiles = [];
+			return;
+		}
+		const firstFile = files[0];
 		if (
 			!(
-				file.type.startsWith('image/') ||
-				file.type.startsWith('video/') ||
-				file.type.startsWith('audio/')
+				firstFile.type.startsWith('image/') ||
+				firstFile.type.startsWith('video/') ||
+				firstFile.type.startsWith('audio/')
 			)
 		) {
 			error.set('Unsupported file type. Please select an image or video file.');
 			return;
 		}
-		selectedFile = file;
-		handleFileChange({ target: { files: [file] } });
+		selectedFiles = files;
+		handleFileChange({ target: { files } });
 		isDraggingOver = false;
 	};
 
@@ -100,7 +108,7 @@
 		if ($loading) return;
 		try {
 			// Ensure a file is selected before proceeding
-			if (!selectedFile && (!batchMode || !selectedFiles.length)) {
+			if (!selectedFiles || !selectedFiles.length) {
 				error.set('Please select a file to convert.');
 				return;
 			}
@@ -128,8 +136,8 @@
 				downloadEl.download = 'converted-files.zip';
 				conversionResult = zipUrl;
 				loading.set(false);
-			} else if (selectedFile) {
-				const result = await convertFile(selectedFile, selectedFile.name, {
+			} else if (selectedFiles[0]) {
+				const result = await convertFile(selectedFiles[0], selectedFiles[0].name, {
 					format: get(format),
 					resolution,
 					bitrate,
@@ -161,8 +169,7 @@
 				formatOptions.set($advancedMode ? extendedVideoFormats : baseVideoFormats);
 				break;
 			default:
-				formatOptions.set([]);
-				break;
+				throw new Error('Unsupported media type');
 		}
 	}
 
@@ -210,7 +217,8 @@
 			<Input multiple type="file" bind:value={selectedFiles} />
 		{:else}
 			<!-- Single File Mode -->
-			{#if selectedFile}
+			{#if selectedFiles && selectedFiles[0]}
+				{@const file = selectedFiles[0]}
 				<div class="flex flex-col gap-4">
 					{#if previewUrl}
 						{#if $mediaType === FileType.Image}
@@ -223,11 +231,11 @@
 						{/if}
 					{/if}
 					<div>
-						<p><strong>File Name:</strong> {selectedFile.name}</p>
-						<p><strong>File Size:</strong> {formatMediaFileSize(selectedFile.size)}</p>
-						<p><strong>File Type:</strong> {selectedFile.type}</p>
+						<p><strong>File Name:</strong> {file.name}</p>
+						<p><strong>File Size:</strong> {formatMediaFileSize(file.size)}</p>
+						<p><strong>File Type:</strong> {file.type}</p>
 					</div>
-					<Button on:click={() => (selectedFile = null)}>Remove File</Button>
+					<Button on:click={() => (selectedFiles = [])}>Remove File</Button>
 				</div>
 			{:else}
 				<div
@@ -275,7 +283,7 @@
 			{/if}
 		{/if}
 
-		{#if selectedFile && $mediaType}
+		{#if selectedFiles && selectedFiles.length && $mediaType}
 			<div class="my-4">
 				<!-- svelte-ignore a11y-label-has-associated-control -->
 				<label>Format</label>
@@ -323,7 +331,7 @@
 		<Button
 			bind:this={downloadEl}
 			on:click={handleConversion}
-			disabled={!selectedFile || !format}
+			disabled={!selectedFiles || !selectedFiles.length || !format}
 			class="my-4 w-full"
 		>
 			{#if $loading}
