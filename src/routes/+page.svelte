@@ -261,7 +261,7 @@
 			{batchMode ? 'Switch to Single File Mode' : 'Switch to Batch Mode'}
 		</Button>
 		<div class="flex items-center space-x-2">
-			<Switch id="advanced-mode" bind:checked={$advancedMode} />
+			<Switch id="advanced-mode" aria-label="Advanced Mode Toggle" bind:checked={$advancedMode} />
 			<Label for="advanced-mode">Advanced Mode</Label>
 		</div>
 	</div>
