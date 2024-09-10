@@ -1,7 +1,7 @@
-import { FFmpeg } from '@ffmpeg/ffmpeg';
 // @ts-ignore
 import type { LogEvent } from '@ffmpeg/ffmpeg/dist/esm/types';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
+import { FFmpeg } from '@ffmpeg/ffmpeg';
 
 const baseURL = 'https://unpkg.com/@ffmpeg/core-mt@0.12.6/dist/esm';
 let ffmpeg: FFmpeg | null = null;
@@ -9,7 +9,7 @@ let ffmpeg: FFmpeg | null = null;
 /**
  * Initializes FFmpeg if it's not already loaded.
  */
-async function initializeFFmpeg() {
+export async function init() {
 	if (!ffmpeg) {
 		ffmpeg = new FFmpeg();
 
@@ -40,7 +40,7 @@ export async function convertFile(
 	fileName: string,
 	options: { format: string; resolution?: string; bitrate?: string; codec?: string }
 ): Promise<{ file: Uint8Array; name: string }> {
-	await initializeFFmpeg();
+	await init();
 	if (!ffmpeg) {
 		throw new Error('FFmpeg not initialized');
 	}
@@ -49,7 +49,7 @@ export async function convertFile(
 
 	// Write the input file to FFmpeg's file system
 	await ffmpeg.writeFile(fileName, await fetchFile(file));
-	console.log('File written to FFmpeg file system');
+	console.debug('File written to FFmpeg file system');
 
 	// Generate FFmpeg command
 	const command = ['-i', fileName];
@@ -72,11 +72,11 @@ export async function convertFile(
 	}
 
 	command.push(outputFileName);
-	console.log('Command generated:', command);
+	console.debug('Command generated:', command);
 
 	// Execute the FFmpeg command
 	await ffmpeg.exec(command);
-	console.log('Command executed');
+	console.debug('Command executed');
 
 	// Read the output file
 	const outputData = await ffmpeg.readFile(outputFileName);
@@ -102,7 +102,10 @@ export async function batchConvert(
 	files: File[],
 	options: { format: string; resolution?: string; bitrate?: string; codec?: string }
 ): Promise<Uint8Array[]> {
-	await initializeFFmpeg();
+	await init();
+	if (!ffmpeg) {
+		throw new Error('FFmpeg not initialized');
+	}
 
 	const results: Uint8Array[] = [];
 	for (const file of files) {

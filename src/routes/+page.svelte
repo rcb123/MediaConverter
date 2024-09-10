@@ -9,31 +9,50 @@
 		extendedVideoFormats
 	} from '$lib/mediaFormats';
 	import { formatMediaFileSize } from '$lib/mediaFileSizeFormatter';
-	import { convertFile, batchConvert } from '$lib/ffmpeg';
+	import { type AudioSettings, type ImageSettings, type VideoSettings } from '$lib/ffmpeg.d';
 	import { LoaderCircle, Sun, Moon } from 'lucide-svelte';
 	import { Switch } from '$components/ui/switch';
 	import { Button } from '$components/ui/button';
 	import { Label } from '$components/ui/label';
 	import { Input } from '$components/ui/input';
+	import { get, writable, type Writable } from 'svelte/store';
 	import { toggleMode } from 'mode-watcher';
-	import { get, writable } from 'svelte/store';
+	import { MediaType } from '$lib/files';
 
-	import * as Select from '$components/ui/select';
 	import JSZip from 'jszip';
+	import ConversionOptions from '$components/ConversionOptions.svelte';
+	import { onMount } from 'svelte';
 
-	enum FileType {
-		Image = 'image',
-		Video = 'video',
-		Audio = 'audio'
-	}
-
-	const mediaType = writable<FileType | null>(null);
-	const format = writable<MediaFormat>('mp4');
+	const mediaType = writable<MediaType | null>(null);
 	const formatOptions = writable<{ label: string; value: MediaFormat }[]>([]);
 	const advancedMode = writable(false);
 	const loading = writable(false);
 	const message = writable('');
 	const error = writable<string | null>(null);
+	const options: Writable<{
+		[MediaType.Audio]: AudioSettings;
+		[MediaType.Image]: ImageSettings;
+		[MediaType.Video]: VideoSettings;
+	}> = writable({
+		[MediaType.Audio]: {
+			format: 'mp3',
+			bitrate: '',
+			codec: '',
+			channels: ''
+		},
+		[MediaType.Image]: {
+			format: 'jpeg',
+			resolution: '',
+			quality: 100
+		},
+		[MediaType.Video]: {
+			format: 'mp4',
+			resolution: '',
+			bitrate: '',
+			frameRate: '',
+			codec: ''
+		}
+	});
 
 	let downloadEl: Button;
 	let isDraggingOver: boolean = false;
@@ -44,6 +63,35 @@
 	let codec = '';
 	let conversionResult: string | null = null;
 	let batchMode = false;
+	let convertFile: (
+		file: File,
+		fileName: string,
+		options: {
+			format: string;
+			resolution?: string;
+			bitrate?: string;
+			codec?: string;
+		}
+	) => Promise<{
+		file: Uint8Array;
+		name: string;
+	}>;
+	let batchConvert: (
+		files: File[],
+		options: {
+			format: string;
+			resolution?: string;
+			bitrate?: string;
+			codec?: string;
+		}
+	) => Promise<Uint8Array[]>;
+
+	onMount(async () => {
+		const ffmpegUtil = await import('$lib/ffmpeg');
+		convertFile = ffmpegUtil.convertFile;
+		batchConvert = ffmpegUtil.batchConvert;
+		ffmpegUtil.init();
+	});
 
 	const handleFileChange = (event: any) => {
 		error.set(null);
@@ -56,20 +104,20 @@
 		if (selectedFiles[0]) {
 			const fileType = selectedFiles[0].type;
 			if (fileType.startsWith('image/')) {
-				mediaType.set(FileType.Image);
+				mediaType.set(MediaType.Image);
 				previewUrl = URL.createObjectURL(selectedFiles[0]);
 			} else if (fileType.startsWith('video/')) {
-				mediaType.set(FileType.Video);
+				mediaType.set(MediaType.Video);
 				previewUrl = URL.createObjectURL(selectedFiles[0]);
 			} else if (fileType.startsWith('audio/')) {
-				mediaType.set(FileType.Audio);
+				mediaType.set(MediaType.Audio);
 				previewUrl = URL.createObjectURL(selectedFiles[0]);
 			} else {
 				mediaType.set(null);
 				previewUrl = null;
 			}
 		}
-		console.log('File selected:', selectedFiles[0]);
+		console.debug('File selected:', selectedFiles[0]);
 	};
 
 	const handleDrop = (event: any) => {
@@ -112,14 +160,19 @@
 				error.set('Please select a file to convert.');
 				return;
 			}
-			if (!format) {
+			if (!$mediaType) {
+				error.set('Please select a valid file type to convert.');
+				return;
+			}
+			const currentOptions = get(options)[$mediaType];
+			if (!currentOptions.format) {
 				error.set('Please select a format to convert the file to.');
 				return;
 			}
 			loading.set(true);
 			if (batchMode && selectedFiles.length) {
 				const results = await batchConvert(selectedFiles, {
-					format: get(format),
+					format: currentOptions.format,
 					resolution,
 					bitrate,
 					codec
@@ -128,8 +181,8 @@
 				// Construct a zip file with all the converted files
 				const zip = new JSZip();
 				results.forEach((result, index) => {
-					const blob = new Blob([result.buffer], { type: `video/${format}` });
-					zip.file(`converted-file-${index + 1}.${format}`, blob);
+					const blob = new Blob([result.buffer], { type: `video/${currentOptions.format}` });
+					zip.file(`converted-file-${index + 1}.${currentOptions.format}`, blob);
 				});
 				const zipBlob = await zip.generateAsync({ type: 'blob' });
 				const zipUrl = URL.createObjectURL(zipBlob);
@@ -138,13 +191,13 @@
 				loading.set(false);
 			} else if (selectedFiles[0]) {
 				const result = await convertFile(selectedFiles[0], selectedFiles[0].name, {
-					format: get(format),
+					format: currentOptions.format,
 					resolution,
 					bitrate,
 					codec
 				});
-				console.log('Conversion Finished');
-				const blob = new Blob([result.file.buffer], { type: `video/${format}` });
+				console.debug('Conversion Finished');
+				const blob = new Blob([result.file.buffer], { type: `video/${currentOptions.format}` });
 				const url = URL.createObjectURL(blob);
 				downloadEl.download = result.name;
 				conversionResult = url;
@@ -159,17 +212,18 @@
 
 	function updateFormatOptions() {
 		switch ($mediaType) {
-			case FileType.Audio:
+			case MediaType.Audio:
 				formatOptions.set($advancedMode ? extendedAudioFormats : baseAudioFormats);
 				break;
-			case FileType.Image:
+			case MediaType.Image:
 				formatOptions.set($advancedMode ? extendedImageFormats : baseImageFormats);
 				break;
-			case FileType.Video:
+			case MediaType.Video:
 				formatOptions.set($advancedMode ? extendedVideoFormats : baseVideoFormats);
 				break;
 			default:
-				throw new Error('Unsupported media type');
+				formatOptions.set([]);
+				break;
 		}
 	}
 
@@ -221,12 +275,12 @@
 				{@const file = selectedFiles[0]}
 				<div class="flex flex-col gap-4">
 					{#if previewUrl}
-						{#if $mediaType === FileType.Image}
+						{#if $mediaType === MediaType.Image}
 							<img src={previewUrl} alt="File preview" class="preview" />
-						{:else if $mediaType === FileType.Video}
+						{:else if $mediaType === MediaType.Video}
 							<!-- svelte-ignore a11y-media-has-caption -->
 							<video src={previewUrl} controls class="preview" />
-						{:else if $mediaType === FileType.Audio}
+						{:else if $mediaType === MediaType.Audio}
 							<audio src={previewUrl} controls class="preview" />
 						{/if}
 					{/if}
@@ -284,54 +338,15 @@
 		{/if}
 
 		{#if selectedFiles && selectedFiles.length && $mediaType}
-			<div class="my-4">
-				<!-- svelte-ignore a11y-label-has-associated-control -->
-				<label>Format</label>
-				<Select.Root
-					items={$formatOptions}
-					onSelectedChange={(state) => {
-						if (state) {
-							$format = state.value ? state.value : 'mp4';
-							console.log('Selected format:', format);
-						}
-					}}
-				>
-					<Select.Trigger>
-						<Select.Value placeholder="Format" />
-					</Select.Trigger>
-					<Select.Content>
-						{#each $formatOptions as { label, value }}
-							<Select.Item {value}>{label}</Select.Item>
-						{/each}
-					</Select.Content>
-				</Select.Root>
-			</div>
-
-			{#if $mediaType === FileType.Video && $advancedMode}
-				<div class="my-4">
-					<!-- svelte-ignore a11y-label-has-associated-control -->
-					<label>Resolution (Optional)</label>
-					<Input bind:value={resolution} placeholder="e.g., 1280x720" />
-				</div>
-
-				<div class="my-4">
-					<!-- svelte-ignore a11y-label-has-associated-control -->
-					<label>Bitrate (Optional)</label>
-					<Input bind:value={bitrate} placeholder="e.g., 1000k" />
-				</div>
-
-				<div class="my-4">
-					<!-- svelte-ignore a11y-label-has-associated-control -->
-					<label>Codec (Optional)</label>
-					<Input bind:value={codec} placeholder="e.g., libx264" />
-				</div>
-			{/if}
+			<ConversionOptions mediaType={$mediaType} {formatOptions} {advancedMode} {options} />
 		{/if}
 
 		<Button
 			bind:this={downloadEl}
 			on:click={handleConversion}
-			disabled={!selectedFiles || !selectedFiles.length || !format}
+			disabled={!selectedFiles ||
+				!selectedFiles.length ||
+				($mediaType && !$options[$mediaType].format)}
 			class="my-4 w-full"
 		>
 			{#if $loading}
@@ -342,7 +357,11 @@
 		</Button>
 		<div>
 			{#if conversionResult}
-				<Button bind:this={downloadEl} href={conversionResult} class="bg-blue-600 text-accent my-4">
+				<Button
+					bind:this={downloadEl}
+					href={conversionResult}
+					class="bg-blue-600 text-accent my-4 w-full"
+				>
 					Download Converted File
 				</Button>
 			{/if}
