@@ -23,6 +23,7 @@
 	import ConversionOptions from '$components/ConversionOptions.svelte';
 	import { onMount } from 'svelte';
 
+	const ffmpegInitialized = writable(false);
 	const mediaType = writable<MediaType | null>(null);
 	const formatOptions = writable<{ label: string; value: MediaFormat }[]>([]);
 	const advancedMode = writable(false);
@@ -86,14 +87,13 @@
 		}
 	) => Promise<Uint8Array[]>;
 
-	onMount(async () => {
-		const ffmpegUtil = await import('$lib/ffmpeg');
-		convertFile = ffmpegUtil.convertFile;
-		batchConvert = ffmpegUtil.batchConvert;
-		ffmpegUtil.init();
-	});
-
-	const handleFileChange = (event: any) => {
+	async function handleFileChange(event: any) {
+		if (!$ffmpegInitialized) {
+			const ffmpegUtil = await import('$lib/ffmpeg');
+			convertFile = ffmpegUtil.convertFile;
+			batchConvert = ffmpegUtil.batchConvert;
+			ffmpegInitialized.set(await ffmpegUtil.init());
+		}
 		error.set(null);
 		const files: File[] | null = event.target.files;
 		if (!files || !files.length) {
@@ -118,9 +118,9 @@
 			}
 		}
 		console.debug('File selected:', selectedFiles[0]);
-	};
+	}
 
-	const handleDrop = (event: any) => {
+	function handleDrop(event: any) {
 		event.preventDefault();
 		const files = event.dataTransfer.files;
 		if (!files || !files.length) {
@@ -141,16 +141,16 @@
 		selectedFiles = files;
 		handleFileChange({ target: { files } });
 		isDraggingOver = false;
-	};
+	}
 
-	const handleDragOver = (event: any) => {
+	function handleDragOver(event: any) {
 		event.preventDefault();
 		isDraggingOver = true;
-	};
+	}
 
-	const handleDragLeave = () => {
+	function handleDragLeave() {
 		isDraggingOver = false;
-	};
+	}
 
 	async function handleConversion() {
 		if ($loading) return;

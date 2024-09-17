@@ -9,22 +9,29 @@ let ffmpeg: FFmpeg | null = null;
 /**
  * Initializes FFmpeg if it's not already loaded.
  */
-export async function init() {
+export async function init(): Promise<boolean> {
 	if (!ffmpeg) {
-		ffmpeg = new FFmpeg();
+		try {
+			ffmpeg = new FFmpeg();
 
-		// Attach a logging handler
-		ffmpeg.on('log', ({ type, message }: LogEvent) => {
-			console.log(`[${type}] ${message}`);
-		});
+			// Attach a logging handler
+			ffmpeg.on('log', ({ type, message }: LogEvent) => {
+				console.log(`[${type}] ${message}`);
+			});
 
-		// Load FFmpeg with the correct core and wasm files
-		await ffmpeg.load({
-			coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-			wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-			workerURL: await toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, 'text/javascript')
-		});
+			// Load FFmpeg with the correct core and wasm files
+			await ffmpeg.load({
+				coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+				wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+				workerURL: await toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, 'text/javascript')
+			});
+			return true;
+		} catch (error) {
+			console.error('Failed to initialize FFmpeg:', error);
+			return false;
+		}
 	}
+	return true;
 }
 
 /**
