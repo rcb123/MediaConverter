@@ -126,6 +126,8 @@
 	selectedFiles.subscribe((value) => {
 		updatePreview(value, previewUrl);
 	});
+
+	$: console.log(typeof SharedArrayBuffer);
 </script>
 
 <svelte:head>
@@ -198,6 +200,12 @@
 	<header class="w-full border-b-2 border-foreground/20">
 		<div class="container flex items-center justify-between gap-2 py-2">
 			<h1 class="text-2xl font-semibold">Media Conversion Tool</h1>
+			{#if typeof SharedArrayBuffer !== 'undefined'}
+				<p class="text-sm text-foreground/60">SharedArrayBuffer is supported</p>
+			{:else}
+				<p class="text-sm text-destructive">SharedArrayBuffer is not supported</p>
+			{/if}
+
 			<Button on:click={toggleMode} variant="ghost" size="icon">
 				<Sun
 					class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all 
@@ -294,7 +302,7 @@
 			</div>
 			<p>
 				Made with ❤️ by <a
-					href="rezab.vercel.app"
+					href="https://rezab.vercel.app"
 					class="rounded-sm underline-offset-4 hover:underline"
 					target="_blank"
 				>
