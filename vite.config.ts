@@ -1,21 +1,28 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig, type Plugin } from 'vite';
 
-const viteServerConfig: Plugin = {
-	name: 'log-request-middleware',
-	configureServer(server) {
-		server.middlewares.use((_req, res, next) => {
-			res.setHeader('Access-Control-Allow-Origin', '*');
-			res.setHeader('Access-Control-Allow-Methods', 'GET');
-			res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
-			res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+const crossOriginIsolation: Plugin = {
+	name: 'cross-origin-isolation',
+	configureServer: (server) => {
+		server.middlewares.use((_, response, next) => {
+			response.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+			response.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+			response.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+			next();
+		});
+	},
+	configurePreviewServer: (server) => {
+		server.middlewares.use((_, response, next) => {
+			response.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+			response.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+			response.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
 			next();
 		});
 	}
 };
 
 export default defineConfig({
-	plugins: [sveltekit(), viteServerConfig],
+	plugins: [sveltekit(), crossOriginIsolation],
 	optimizeDeps: {
 		exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/util']
 	}

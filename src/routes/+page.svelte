@@ -40,11 +40,12 @@
 	let loadingStoredMedia = true;
 
 	async function handleConversion() {
-		if (get(loading) || !$selectedFiles.length || !get(mediaType)) return;
+		const currentMediaType = get(mediaType);
+		if (get(loading) || !$selectedFiles.length || !currentMediaType) return;
 		loading.set(true);
 
 		try {
-			const currentOptions = get(options)[get(mediaType)!];
+			const currentOptions = get(options)[currentMediaType];
 			const results = await batchConvert($selectedFiles, currentOptions);
 
 			const newConvertedMedia = results.map((result, index) => {
@@ -57,7 +58,7 @@
 					originalName: file.name,
 					convertedName: `${file.name.replace(/\.[^/.]+$/, '')}.${currentOptions.format}`,
 					blob,
-					type: get(mediaType)!,
+					type: currentMediaType,
 					size: blob.size,
 					date: new Date()
 				};
@@ -99,7 +100,7 @@
 
 		const storedStorageLimit = localStorage.getItem('storageLimitMB');
 		if (storedStorageLimit !== null) {
-			storageLimitMB.set(parseInt(storedStorageLimit, 10));
+			storageLimitMB.set(Number.parseInt(storedStorageLimit, 10));
 		}
 
 		if (get(persistMedia)) {

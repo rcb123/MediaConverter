@@ -22,7 +22,9 @@ export async function loadConvertedMediaFromStorage() {
  */
 export function saveConvertedMediaToStorage() {
 	const media = get(convertedMedia);
-	media.forEach((item) => saveItem(item)); // Save each item in the media array
+	for (const item of media) {
+		saveItem(item); // Save each item in the media array
+	}
 }
 
 /**
