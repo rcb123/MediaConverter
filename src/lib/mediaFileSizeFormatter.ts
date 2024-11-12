@@ -5,12 +5,12 @@
  * @param {number} [precision=2] - Optional. The number of decimal places to include (default is 2).
  * @returns {string} Human-readable size format (e.g., "1.23 MB", "4.56 GB").
  */
-export function formatMediaFileSize(bytes: number, precision: number = 2): string {
+export function formatMediaFileSize(bytes: number, precision = 2): string {
 	if (bytes < 0) {
 		throw new Error('Bytes cannot be negative');
 	}
 
-	if (isNaN(bytes) || !isFinite(bytes)) {
+	if (Number.isNaN(bytes) || !Number.isFinite(bytes)) {
 		throw new Error('Invalid byte value');
 	}
 
@@ -28,7 +28,7 @@ export function formatMediaFileSize(bytes: number, precision: number = 2): strin
 	const cappedUnitIndex = Math.min(unitIndex, units.length - 1);
 
 	// Calculate the value in the selected unit
-	const readableValue = bytes / Math.pow(base, cappedUnitIndex);
+	const readableValue = bytes / base ** cappedUnitIndex;
 
 	// Format the number with the specified precision
 	return `${readableValue.toFixed(precision)} ${units[cappedUnitIndex]}`;
