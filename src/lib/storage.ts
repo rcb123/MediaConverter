@@ -14,7 +14,9 @@ export const persistMedia = writable<boolean>(true); // Default to persisting me
 export async function loadConvertedMediaFromStorage() {
 	const storedMedia = await getAllItems();
 	convertedMedia.set(storedMedia);
-	toast.success('Media loaded from storage');
+	if (storedMedia.length > 0) {
+		toast.success('Media loaded from storage');
+	}
 }
 
 /**
