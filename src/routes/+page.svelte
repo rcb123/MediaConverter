@@ -127,8 +127,6 @@
 	selectedFiles.subscribe((value) => {
 		updatePreview(value, previewUrl);
 	});
-
-	$: console.log(typeof SharedArrayBuffer);
 </script>
 
 <svelte:head>
