@@ -45,7 +45,7 @@
 	</div>
 
 	{#if item.type === 'image'}
-		<button class="w-full" on:click|preventDefault={() => dispatch('preview', objectURL)}>
+		<button class="w-full" onclick={() => dispatch('preview', objectURL)}>
 			<img
 				src={objectURL}
 				alt={item.originalName}

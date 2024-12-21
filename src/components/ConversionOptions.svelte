@@ -7,6 +7,7 @@
 		extendedAudioFormats,
 		extendedImageFormats,
 		extendedVideoFormats,
+		isMediaFormat,
 		type MediaFormat,
 		type MediaType
 	} from '$lib/media';
@@ -20,13 +21,19 @@
 
 	const formatOptions = writable<{ label: string; value: MediaFormat }[]>([]);
 
-	export let advancedMode: Writable<boolean>;
-	export let mediaType: MediaType;
-	export let options: Writable<{
-		audio: AudioOptions;
-		image: ImageOptions;
-		video: VideoOptions;
-	}>;
+	const {
+		advancedMode,
+		mediaType,
+		options
+	}: {
+		advancedMode: Writable<boolean>;
+		mediaType: MediaType;
+		options: Writable<{
+			audio: AudioOptions;
+			image: ImageOptions;
+			video: VideoOptions;
+		}>;
+	} = $props();
 
 	onMount(updateFormatOptions);
 
@@ -46,22 +53,30 @@
 				break;
 		}
 	}
+
+	// biome-ignore lint/style/useConst: <explanation>
+	let value = $state('');
+	const triggerContent = $derived(
+		$formatOptions.find((f) => f.value === value)?.label ?? 'Select a format'
+	);
 </script>
 
 <div class="space-y-4">
 	<div>
 		<Label for="format">Format</Label>
 		<Select.Root
+			type="single"
 			items={$formatOptions}
-			onSelectedChange={(state) => {
-				if (state) {
-					$options[mediaType].format = state.value;
-					console.debug('Selected format:', state.value);
+			onValueChange={(value) => {
+				if (value && isMediaFormat(value)) {
+					$options[mediaType].format = value;
+					console.debug('Selected format:', value);
 				}
 			}}
+			bind:value
 		>
 			<Select.Trigger>
-				<Select.Value placeholder="Select format" />
+				{triggerContent}
 			</Select.Trigger>
 			<Select.Content>
 				{#each $formatOptions as { label, value }}
@@ -72,7 +87,7 @@
 	</div>
 
 	{#if $advancedMode}
-		<div class="border-foreground/20 border-t"></div>
+		<div class="border-t border-foreground/20"></div>
 		<div>
 			<h3 class="mb-2 text-lg font-semibold">Advanced Options</h3>
 			{#if mediaType === 'audio'}
@@ -88,13 +103,6 @@
 				</div>
 			{:else if mediaType === 'image'}
 				<div class="space-y-2">
-					<Label for="resolution">Resolution</Label>
-					<Input
-						id="resolution"
-						bind:value={$options.image.resolution}
-						placeholder="e.g., 1280x720"
-					/>
-
 					<Label for="quality">Quality</Label>
 					<Input id="quality" bind:value={$options.image.quality} placeholder="e.g., 100" />
 				</div>
@@ -106,7 +114,6 @@
 						bind:value={$options.video.resolution}
 						placeholder="e.g., 1280x720"
 					/>
-
 					<Label for="bitrate">Bitrate</Label>
 					<Input id="bitrate" bind:value={$options.video.bitrate} placeholder="e.g., 1000k" />
 

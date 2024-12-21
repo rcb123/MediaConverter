@@ -62,16 +62,20 @@ export type AudioFormat = (typeof mediaFormats)['audio'][number];
 export type VideoFormat = (typeof mediaFormats)['video'][number];
 export type MediaFormat = AudioFormat | ImageFormat | VideoFormat;
 
-export function isAudioFormat(format: MediaFormat): format is AudioFormat {
+export function isAudioFormat(format: string): format is AudioFormat {
 	return mediaFormats.audio.includes(format as AudioFormat);
 }
 
-export function isImageFormat(format: MediaFormat): format is ImageFormat {
+export function isImageFormat(format: string): format is ImageFormat {
 	return mediaFormats.image.includes(format as ImageFormat);
 }
 
-export function isVideoFormat(format: MediaFormat): format is VideoFormat {
+export function isVideoFormat(format: string): format is VideoFormat {
 	return mediaFormats.video.includes(format as VideoFormat);
+}
+
+export function isMediaFormat(format: string): format is MediaFormat {
+	return isAudioFormat(format) || isImageFormat(format) || isVideoFormat(format);
 }
 
 export function inferMediaType(format: MediaFormat): MediaType {
