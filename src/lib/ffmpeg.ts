@@ -1,4 +1,3 @@
-import { fetchFile } from '@ffmpeg/util';
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { getMimeType, inferMediaType, type MediaFormat } from './media';
 import type { AudioFormat, ImageFormat, VideoFormat } from './media';
@@ -154,7 +153,7 @@ class FFmpegWrapper {
 
 		try {
 			// Write the input file to FFmpeg's file system
-			await this.ffmpeg.writeFile(inputFile.name, await fetchFile(inputFile));
+			await this.ffmpeg.writeFile(inputFile.name, new Uint8Array(await inputFile.arrayBuffer()));
 			console.debug(`File '${inputFile.name}' written to FFmpeg virtual file system`);
 
 			// Generate FFmpeg command
