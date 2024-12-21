@@ -98,7 +98,6 @@ export async function enforceStorageLimit(): Promise<void> {
 		if (get(persistMedia)) {
 			await saveConvertedMediaToStorage();
 		}
-		toast.success('Storage limit enforced');
 	} catch (error) {
 		toast.error('Failed to enforce storage limit');
 		console.error('Error enforcing storage limit:', error);
