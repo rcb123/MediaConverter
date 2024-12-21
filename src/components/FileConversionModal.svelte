@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { writable, type Writable } from 'svelte/store';
-	import { advancedMode, ffmpegInitialized, mediaType, loading, options } from '$lib/stores';
+	import { advancedMode, mediaType, loading, options } from '$lib/stores';
 	import { Button } from '$components/ui/button/index.js';
 	import { formatMediaFileSize } from '$lib/media';
 	import { LoaderCircle } from 'lucide-svelte';
@@ -10,10 +10,12 @@
 
 	const {
 		showModal = writable(false),
+		ffmpegInitialized = false,
 		selectedFiles,
 		handleConversion
 	}: {
 		showModal: Writable<boolean>; // Boolean to control the visibility of the modal
+		ffmpegInitialized: boolean; // Boolean to check if FFMPEG is initialized
 		selectedFiles: Writable<File[]>; // Array of files selected by the user
 		handleConversion: () => void; // Function to handle the conversion process
 	} = $props();
@@ -88,13 +90,13 @@
 			<Button
 				type="submit"
 				onclick={handleConversion}
-				disabled={$selectedFiles.length === 0 || !$mediaType || $loading || !$ffmpegInitialized}
+				disabled={$selectedFiles.length === 0 || !$mediaType || $loading || !ffmpegInitialized}
 				class="mt-4 w-full"
 			>
 				{#if $loading}
 					<LoaderCircle class="mr-2 size-4 animate-spin" />
 					Converting...
-				{:else if !$ffmpegInitialized}
+				{:else if !ffmpegInitialized}
 					Initializing FFMPEG...
 				{:else}
 					Convert

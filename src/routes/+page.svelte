@@ -241,7 +241,12 @@
 		}}
 		{selectedFiles}
 	>
-		<FileConversionModal showModal={showFileConversionModal} {selectedFiles} {handleConversion} />
+		<FileConversionModal
+			showModal={showFileConversionModal}
+			ffmpegInitialized={ffmpegWrapper?.isInitialized ?? false}
+			{selectedFiles}
+			{handleConversion}
+		/>
 		<MediaPreviewModal showModal={showMediaPreviewModal} {previewUrl} />
 		<section>
 			<div class="flex items-center justify-between gap-4 pb-2">
