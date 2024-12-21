@@ -16,7 +16,7 @@
 		loadingStoredMedia: boolean;
 		isDraggingOver: boolean;
 		selectedFiles: Writable<File[]>;
-		children: Snippet;
+		children: Snippet<[]>;
 	} = $props();
 
 	let filesPresent = $state(false);
