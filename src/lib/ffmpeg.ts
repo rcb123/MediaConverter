@@ -1,14 +1,7 @@
 import { fetchFile } from '@ffmpeg/util';
 import { FFmpeg } from '@ffmpeg/ffmpeg';
-import {
-	getMimeType,
-	inferMediaType,
-	isAudioFormat,
-	isImageFormat,
-	isVideoFormat,
-	type MediaFormat
-} from './media';
-import type { AudioFormat, ImageFormat, MediaType, VideoFormat } from './media';
+import { getMimeType, inferMediaType, type MediaFormat } from './media';
+import type { AudioFormat, ImageFormat, VideoFormat } from './media';
 
 export interface CommonOptions {
 	format: MediaFormat;
