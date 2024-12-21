@@ -11,7 +11,7 @@
 
 	const dispatch = createEventDispatcher();
 
-	const objectURL = URL.createObjectURL(item.blob);
+	const objectURL = URL.createObjectURL(item.convertedFile);
 </script>
 
 <div
@@ -24,7 +24,11 @@
            transition-all group-hover:pointer-events-auto
            group-hover:opacity-100"
 	>
-		<Button onclick={() => copyMediaToClipboard(item.blob)} size="icon" variant="ghost">
+		<Button
+			onclick={async () => copyMediaToClipboard(item.convertedFile)}
+			size="icon"
+			variant="ghost"
+		>
 			<Copy class="size-4" />
 		</Button>
 		<Button

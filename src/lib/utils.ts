@@ -96,7 +96,7 @@ export async function downloadAllMedia() {
 	const media = get(convertedMedia);
 
 	for (const item of media) {
-		zip.file(item.convertedName, item.blob);
+		zip.file(item.convertedName, await item.convertedFile);
 	}
 
 	const content = await zip.generateAsync({ type: 'blob' });

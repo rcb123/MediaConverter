@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Writable } from 'svelte/store';
+	import { writable, type Writable } from 'svelte/store';
 	import type { Snippet } from 'svelte';
 	import { groupedConvertedMedia } from '$lib/storage';
 	import { createEventDispatcher } from 'svelte';
@@ -7,14 +7,14 @@
 
 	const dispatch = createEventDispatcher();
 
-	let {
-		loadingStoredMedia = true,
-		isDraggingOver = false,
+	const {
+		loadingStoredMedia = writable(true),
+		isDraggingOver = writable(false),
 		selectedFiles,
 		children
 	}: {
-		loadingStoredMedia: boolean;
-		isDraggingOver: boolean;
+		loadingStoredMedia: Writable<boolean>;
+		isDraggingOver: Writable<boolean>;
 		selectedFiles: Writable<File[]>;
 		children: Snippet<[]>;
 	} = $props();
@@ -40,7 +40,7 @@
 			selectedFiles.set(Array.from(files));
 			dispatch('fileSelected');
 		}
-		isDraggingOver = false;
+		isDraggingOver.set(false);
 	}
 
 	groupedConvertedMedia.subscribe((media) => {

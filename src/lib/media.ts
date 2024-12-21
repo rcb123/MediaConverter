@@ -271,7 +271,7 @@ export interface ConvertedMediaItem {
 	id: string;
 	originalName: string;
 	convertedName: string;
-	blob: Blob;
+	convertedFile: File;
 	type: MediaType;
 	size: number;
 	date: Date;
