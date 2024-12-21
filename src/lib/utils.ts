@@ -16,9 +16,10 @@ import JSZip from 'jszip';
 import { toast } from 'svelte-sonner';
 
 export function updatePreview(selectedFiles: File[], previewUrl: Writable<string | null>) {
-	if (selectedFiles.length <= 0) {
+	if (selectedFiles.length < 1) {
 		mediaType.set(null);
 		previewUrl.set(null);
+		return;
 	}
 	const file = selectedFiles[0];
 	if (file.type.startsWith('image/')) {
