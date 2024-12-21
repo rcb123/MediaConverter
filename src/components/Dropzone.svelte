@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { writable, type Writable } from 'svelte/store';
+	import { get, writable, type Writable } from 'svelte/store';
 	import type { Snippet } from 'svelte';
 	import { groupedConvertedMedia } from '$lib/storage';
 	import { createEventDispatcher } from 'svelte';
@@ -58,7 +58,7 @@
 	ondrop={handleDrop}
 	ondragover={(event) => event.preventDefault()}
 >
-	{#if loadingStoredMedia}
+	{#if $loadingStoredMedia}
 		<div class="absolute inset-0 flex items-center justify-center">
 			<LoaderCircle class="size-8 animate-spin" />
 		</div>
