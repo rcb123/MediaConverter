@@ -52,6 +52,10 @@ class FFmpegWrapper {
 		this.ffmpeg = new FFmpeg();
 	}
 
+	get isInitialized(): boolean {
+		return this.ffmpeg.loaded;
+	}
+
 	/**
 	 * Initializes FFmpeg.
 	 */

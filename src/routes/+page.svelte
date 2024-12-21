@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { ffmpegInitialized, advancedMode, loading, mediaType, options } from '$lib/stores';
 	import { downloadAllMedia, groupConvertedMedia, updatePreview } from '$lib/utils';
+	import { advancedMode, loading, mediaType, options } from '$lib/stores';
 	import { Sun, Moon, Trash2, Download } from 'lucide-svelte';
 	import GithubIcon from '../assets/GithubIcon.svelte';
 	import { Switch } from '$components/ui/switch';
@@ -45,7 +45,6 @@
 			ffmpegWrapper = new FFmpegWrapper();
 		}
 		await ffmpegWrapper.initialize();
-		ffmpegInitialized.set(true);
 	}
 
 	async function handleConversion() {
@@ -54,7 +53,7 @@
 		loading.set(true);
 
 		try {
-			if (!$ffmpegInitialized) {
+			if (!ffmpegWrapper?.isInitialized) {
 				await initializeFFmpeg();
 			}
 
@@ -230,13 +229,9 @@
 		{isDraggingOver}
 		on:fileSelected={async () => {
 			showFileConversionModal.set(true);
-			if (!get(ffmpegInitialized)) {
-				if (!ffmpegWrapper) {
-					ffmpegWrapper = new FFmpegWrapper();
-				}
+			if (!ffmpegWrapper?.isInitialized) {
 				try {
-					await ffmpegWrapper.initialize();
-					ffmpegInitialized.set(true);
+					await initializeFFmpeg();
 				} catch (error) {
 					toast.error('Failed to initialize FFmpeg. Please try again.');
 					console.error('FFmpeg initialization error:', error);

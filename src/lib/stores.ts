@@ -3,7 +3,6 @@ import type { MediaType } from '$lib/media';
 import type { AudioOptions, ImageOptions, VideoOptions } from '$lib/ffmpeg';
 import type { MediaFormat } from '$lib/media';
 
-export const ffmpegInitialized = writable(false);
 export const mediaType = writable<MediaType | null>(null);
 export const advancedMode = writable(false);
 export const loading = writable(false);
