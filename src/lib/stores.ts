@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store';
-import { MediaType } from '$lib/files';
-import type { AudioSettings, ImageSettings, VideoSettings } from '$lib/ffmpeg.d';
+import type { MediaType } from '$lib/media';
+import type { AudioOptions, ImageOptions, VideoOptions } from '$lib/ffmpeg';
 import type { MediaFormat } from '$lib/media';
 
 export const ffmpegInitialized = writable(false);
@@ -9,26 +9,17 @@ export const advancedMode = writable(false);
 export const loading = writable(false);
 export const formatOptions = writable<{ label: string; value: MediaFormat }[]>([]);
 export const options = writable<{
-	[MediaType.Audio]: AudioSettings;
-	[MediaType.Image]: ImageSettings;
-	[MediaType.Video]: VideoSettings;
+	audio: AudioOptions;
+	image: ImageOptions;
+	video: VideoOptions;
 }>({
-	[MediaType.Audio]: {
-		format: 'mp3',
-		bitrate: '',
-		codec: '',
-		channels: ''
+	audio: {
+		format: 'mp3'
 	},
-	[MediaType.Image]: {
-		format: 'jpeg',
-		resolution: '',
-		quality: 100
+	image: {
+		format: 'jpeg'
 	},
-	[MediaType.Video]: {
-		format: 'mp4',
-		resolution: '',
-		bitrate: '',
-		frameRate: '',
-		codec: ''
+	video: {
+		format: 'mp4'
 	}
 });
