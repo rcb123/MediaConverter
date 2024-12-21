@@ -4,6 +4,13 @@ const DB_NAME = 'mediaStorageDB';
 const DB_VERSION = 1;
 const STORE_NAME = 'convertedMedia';
 
+/**
+ * TODO:
+ *
+ * - Use cursor to query items
+ * - Consider adopting Supabase-like API to enable more expressive queries
+ */
+
 class MediaStorageDB {
 	private static instance: MediaStorageDB;
 	private dbConnection: IDBDatabase | null = null;
