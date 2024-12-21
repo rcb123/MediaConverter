@@ -1,6 +1,7 @@
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { getMimeType, inferMediaType, type MediaFormat } from './media';
 import type { AudioFormat, ImageFormat, VideoFormat } from './media';
+import { isFFmpegInitialized } from './stores';
 
 export interface CommonOptions {
 	format: MediaFormat;
@@ -44,6 +45,23 @@ function isImageOptions(options: ConversionOptions): options is ImageOptions {
 
 export type ConversionOptions = AudioOptions | VideoOptions | ImageOptions;
 
+/**
+ * toBlobURL fetches data from an URL and return a blob URL.
+ *
+ * Example:
+ *
+ * ```ts
+ * await toBlobURL("http://localhost:3000/ffmpeg.js", "text/javascript");
+ * ```
+ */
+async function toBlobURL(url: string, mimeType: string) {
+	const buf = await (await fetch(url)).arrayBuffer();
+	const blob = new Blob([buf], { type: mimeType });
+	return URL.createObjectURL(blob);
+}
+
+const baseURL = 'https://unpkg.com/@ffmpeg/core-mt@0.12.6/dist/esm';
+
 class FFmpegWrapper {
 	private ffmpeg: FFmpeg;
 
@@ -69,8 +87,12 @@ class FFmpegWrapper {
 			this.ffmpeg.on('log', ({ type, message }) => {
 				console.log(`[${type}] ${message}`);
 			});
-
-			await this.ffmpeg.load();
+			await this.ffmpeg.load({
+				coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+				wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+				workerURL: await toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, 'text/javascript')
+			});
+			isFFmpegInitialized.set(true);
 			console.log('FFmpeg initialized successfully.');
 		} catch (error) {
 			console.error('Failed to initialize FFmpeg:', error);
@@ -231,6 +253,7 @@ class FFmpegWrapper {
 	 */
 	terminate(): void {
 		this.ffmpeg.terminate();
+		isFFmpegInitialized.set(false);
 		console.log('FFmpeg worker terminated.');
 	}
 }

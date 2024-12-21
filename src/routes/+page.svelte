@@ -243,7 +243,7 @@
 	>
 		<FileConversionModal
 			showModal={showFileConversionModal}
-			ffmpegInitialized={ffmpegWrapper?.isInitialized ?? false}
+			{ffmpegWrapper}
 			{selectedFiles}
 			{handleConversion}
 		/>

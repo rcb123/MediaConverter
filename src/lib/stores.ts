@@ -6,6 +6,7 @@ import type { MediaFormat } from '$lib/media';
 export const mediaType = writable<MediaType | null>(null);
 export const advancedMode = writable(false);
 export const loading = writable(false);
+export const isFFmpegInitialized = writable(false);
 export const formatOptions = writable<{ label: string; value: MediaFormat }[]>([]);
 export const options = writable<{
 	audio: AudioOptions;
