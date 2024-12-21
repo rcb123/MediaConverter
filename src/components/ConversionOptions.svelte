@@ -72,10 +72,10 @@
 	</div>
 
 	{#if $advancedMode}
-		<div class="border-foreground/20 border-t" />
+		<div class="border-foreground/20 border-t"></div>
 		<div>
 			<h3 class="mb-2 text-lg font-semibold">Advanced Options</h3>
-			{#if mediaType === MediaType.Audio}
+			{#if mediaType === 'audio'}
 				<div class="space-y-2">
 					<Label for="bitrate">Bitrate</Label>
 					<Input id="bitrate" bind:value={$options.audio.bitrate} placeholder="e.g., 128k" />
@@ -86,7 +86,7 @@
 					<Label for="channels">Channels</Label>
 					<Input id="channels" bind:value={$options.audio.channels} placeholder="e.g., 2" />
 				</div>
-			{:else if mediaType === MediaType.Image}
+			{:else if mediaType === 'image'}
 				<div class="space-y-2">
 					<Label for="resolution">Resolution</Label>
 					<Input
@@ -98,7 +98,7 @@
 					<Label for="quality">Quality</Label>
 					<Input id="quality" bind:value={$options.image.quality} placeholder="e.g., 100" />
 				</div>
-			{:else if mediaType === MediaType.Video}
+			{:else if mediaType === 'video'}
 				<div class="space-y-2">
 					<Label for="resolution">Resolution</Label>
 					<Input
