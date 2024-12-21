@@ -2,7 +2,6 @@ import type { ConvertedMediaItem } from '$lib/media';
 
 import { advancedMode, formatOptions, mediaType } from './stores';
 import { convertedMedia } from './storage';
-import { MediaType } from '$lib/files';
 import { get, type Writable } from 'svelte/store';
 import {
 	baseAudioFormats,
@@ -17,21 +16,20 @@ import JSZip from 'jszip';
 import { toast } from 'svelte-sonner';
 
 export function updatePreview(selectedFiles: File[], previewUrl: Writable<string | null>) {
-	if (selectedFiles.length > 0) {
-		const file = selectedFiles[0];
-		if (file.type.startsWith('image/')) {
-			mediaType.set(MediaType.Image);
-			previewUrl.set(URL.createObjectURL(file));
-		} else if (file.type.startsWith('video/')) {
-			mediaType.set(MediaType.Video);
-			previewUrl.set(URL.createObjectURL(file));
-		} else if (file.type.startsWith('audio/')) {
-			mediaType.set(MediaType.Audio);
-			previewUrl.set(URL.createObjectURL(file));
-		} else {
-			mediaType.set(null);
-			previewUrl.set(null);
-		}
+	if (selectedFiles.length <= 0) {
+		mediaType.set(null);
+		previewUrl.set(null);
+	}
+	const file = selectedFiles[0];
+	if (file.type.startsWith('image/')) {
+		mediaType.set('image');
+		previewUrl.set(URL.createObjectURL(file));
+	} else if (file.type.startsWith('video/')) {
+		mediaType.set('video');
+		previewUrl.set(URL.createObjectURL(file));
+	} else if (file.type.startsWith('audio/')) {
+		mediaType.set('audio');
+		previewUrl.set(URL.createObjectURL(file));
 	} else {
 		mediaType.set(null);
 		previewUrl.set(null);
@@ -43,13 +41,13 @@ export function updateFormatOptions() {
 	const isAdvancedMode = get(advancedMode);
 
 	switch (currentMediaType) {
-		case MediaType.Audio:
+		case 'audio':
 			formatOptions.set(isAdvancedMode ? extendedAudioFormats : baseAudioFormats);
 			break;
-		case MediaType.Image:
+		case 'image':
 			formatOptions.set(isAdvancedMode ? extendedImageFormats : baseImageFormats);
 			break;
-		case MediaType.Video:
+		case 'video':
 			formatOptions.set(isAdvancedMode ? extendedVideoFormats : baseVideoFormats);
 			break;
 		default:

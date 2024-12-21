@@ -46,6 +46,7 @@
 		"@ffmpeg/ffmpeg": "^0.12.10",
 		"@ffmpeg/util": "^0.12.1",
 		"@vercel/analytics": "^1.4.1",
+		"jszip": "^3.10.1",
 		"mode-watcher": "^0.5.0"
 	}
 }
