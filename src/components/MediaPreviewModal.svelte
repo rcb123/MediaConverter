@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { writable, type Writable } from 'svelte/store';
 	import { mediaType } from '$lib/stores';
-	import { MediaType } from '$lib/files';
 
 	import * as Dialog from '$components/ui/dialog/index.js';
 
-	export let showModal: Writable<boolean> = writable(false);
-	export let previewUrl = writable<string | null>(null);
+	const {
+		showModal = writable(false),
+		previewUrl = writable(null)
+	}: { showModal: Writable<boolean>; previewUrl: Writable<string | null> } = $props();
 </script>
 
 <Dialog.Root
@@ -16,17 +17,19 @@
 	}}
 >
 	<Dialog.Content class="p-0">
-		{#if $mediaType === MediaType.Image}
+		{#if $mediaType === 'audio'}
+			<audio src={$previewUrl} controls class="w-full"></audio>
+		{:else if $mediaType === 'image'}
 			<img
 				src={$previewUrl}
 				alt="Enlarged preview"
 				width="800"
 				height="600"
-				class="mx-auto max-h-[80vh] w-full max-w-full rounded-lg object-cover aspect-[800/600]"
+				class="mx-auto aspect-[800/600] max-h-[80vh] w-full max-w-full rounded-lg object-cover"
 			/>
-		{:else if $mediaType === MediaType.Video}
-			<!-- svelte-ignore a11y-media-has-caption -->
-			<video src={$previewUrl} />
+		{:else if $mediaType === 'video'}
+			<!-- svelte-ignore a11y_media_has_caption -->
+			<video src={$previewUrl}></video>
 		{/if}
 	</Dialog.Content>
 </Dialog.Root>
