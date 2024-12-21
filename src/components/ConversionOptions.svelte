@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { AudioSettings, ImageSettings, VideoSettings } from '$lib/ffmpeg.d';
+	import type { AudioOptions, ImageOptions, VideoOptions } from '$lib/ffmpeg';
 	import {
 		baseAudioFormats,
 		baseImageFormats,
@@ -7,13 +7,13 @@
 		extendedAudioFormats,
 		extendedImageFormats,
 		extendedVideoFormats,
-		type MediaFormat
-	} from '$lib/mediaFormats';
+		type MediaFormat,
+		type MediaType
+	} from '$lib/media';
 
 	import { writable, type Writable } from 'svelte/store';
 	import { Label } from '$components/ui/label';
 	import { Input } from '$components/ui/input';
-	import { MediaType } from '$lib/files';
 
 	import * as Select from '$components/ui/select';
 	import { onMount } from 'svelte';
@@ -23,22 +23,22 @@
 	export let advancedMode: Writable<boolean>;
 	export let mediaType: MediaType;
 	export let options: Writable<{
-		[MediaType.Audio]: AudioSettings;
-		[MediaType.Image]: ImageSettings;
-		[MediaType.Video]: VideoSettings;
+		audio: AudioOptions;
+		image: ImageOptions;
+		video: VideoOptions;
 	}>;
 
 	onMount(updateFormatOptions);
 
 	function updateFormatOptions() {
 		switch (mediaType) {
-			case MediaType.Audio:
+			case 'audio':
 				formatOptions.set($advancedMode ? extendedAudioFormats : baseAudioFormats);
 				break;
-			case MediaType.Image:
+			case 'image':
 				formatOptions.set($advancedMode ? extendedImageFormats : baseImageFormats);
 				break;
-			case MediaType.Video:
+			case 'video':
 				formatOptions.set($advancedMode ? extendedVideoFormats : baseVideoFormats);
 				break;
 			default:
@@ -72,9 +72,9 @@
 	</div>
 
 	{#if $advancedMode}
-		<div class="border-t border-foreground/20" />
+		<div class="border-foreground/20 border-t" />
 		<div>
-			<h3 class="text-lg font-semibold mb-2">Advanced Options</h3>
+			<h3 class="mb-2 text-lg font-semibold">Advanced Options</h3>
 			{#if mediaType === MediaType.Audio}
 				<div class="space-y-2">
 					<Label for="bitrate">Bitrate</Label>
