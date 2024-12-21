@@ -1,16 +1,25 @@
 <script lang="ts">
 	import type { Writable } from 'svelte/store';
+	import type { Snippet } from 'svelte';
 	import { groupedConvertedMedia } from '$lib/storage';
 	import { createEventDispatcher } from 'svelte';
 	import { LoaderCircle } from 'lucide-svelte';
 
 	const dispatch = createEventDispatcher();
 
-	export let loadingStoredMedia = true;
-	export let isDraggingOver = false;
-	export let selectedFiles: Writable<File[]>;
+	let {
+		loadingStoredMedia = true,
+		isDraggingOver = false,
+		selectedFiles,
+		children
+	}: {
+		loadingStoredMedia: boolean;
+		isDraggingOver: boolean;
+		selectedFiles: Writable<File[]>;
+		children: Snippet;
+	} = $props();
 
-	let filesPresent = false;
+	let filesPresent = $state(false);
 
 	function handleFileChange(event: Event) {
 		const input = event.target as HTMLInputElement;
@@ -45,9 +54,9 @@
 
 <main
 	role="region"
-	class="flex-grow relative container mx-auto py-4"
-	on:drop={handleDrop}
-	on:dragover={(event) => event.preventDefault()}
+	class="container relative mx-auto flex-grow py-4"
+	ondrop={handleDrop}
+	ondragover={(event) => event.preventDefault()}
 >
 	{#if loadingStoredMedia}
 		<div class="absolute inset-0 flex items-center justify-center">
@@ -55,11 +64,11 @@
 		</div>
 	{:else if !filesPresent}
 		<div
-			class="absolute inset-0 h-full flex flex-col items-center justify-center transition-all z-10"
+			class="absolute inset-0 z-10 flex h-full flex-col items-center justify-center transition-all"
 		>
 			<label
 				for="file-input"
-				class="cursor-pointer text-center pointer-events-auto transition-all p-[10%]"
+				class="pointer-events-auto cursor-pointer p-[10%] text-center transition-all"
 			>
 				<svg
 					class="mx-auto h-12 w-12"
@@ -86,8 +95,8 @@
 		type="file"
 		multiple
 		accept="image/*,video/*,audio/*"
-		class="hidden w-full h-full"
-		on:change={handleFileChange}
+		class="hidden h-full w-full"
+		onchange={handleFileChange}
 	/>
-	<slot />
+	{@render children()}
 </main>
