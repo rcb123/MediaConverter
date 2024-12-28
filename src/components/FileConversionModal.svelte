@@ -1,17 +1,22 @@
 <script lang="ts">
 	import { writable, type Writable } from 'svelte/store';
-	import { advancedMode, ffmpegInitialized, mediaType, loading, options } from '$lib/stores';
-	import { formatMediaFileSize } from '$lib/mediaFileSizeFormatter';
+	import { advancedMode, isFFmpegInitialized, loading, mediaType, options } from '$lib/stores';
 	import { Button } from '$components/ui/button/index.js';
+	import { formatMediaFileSize } from '$lib/media';
 	import { LoaderCircle } from 'lucide-svelte';
-	import { MediaType } from '$lib/files';
 
 	import ConversionOptions from './ConversionOptions.svelte';
 	import * as Dialog from '$components/ui/dialog/index.js';
 
-	export let showModal: Writable<boolean> = writable(false); // Boolean to control the visibility of the modal
-	export let selectedFiles: Writable<File[]>; // Array of files selected by the user
-	export let handleConversion: () => void; // Function to handle the conversion process
+	const {
+		showModal = writable(false),
+		selectedFiles,
+		handleConversion
+	}: {
+		showModal: Writable<boolean>; // Boolean to control the visibility of the modal
+		selectedFiles: Writable<File[]>; // Array of files selected by the user
+		handleConversion: () => void; // Function to handle the conversion process
+	} = $props();
 
 	// Supported image formats for the <img> tag
 	const supportedImageFormats = [
@@ -42,27 +47,27 @@
 			<Dialog.Title>Convert Selected Files</Dialog.Title>
 			<Dialog.Description>Convert the selected files to the desired format.</Dialog.Description>
 		</Dialog.Header>
-		<div class="flex flex-col max-h-[50vh] overflow-auto px-4">
-			<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+		<div class="flex max-h-[50vh] flex-col overflow-auto px-4">
+			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
 				{#each $selectedFiles as file}
-					<div class="border rounded-lg hover:shadow-md hover:scale-[1.01] transition-all">
-						{#if $mediaType === MediaType.Image}
+					<div class="rounded-lg border transition-all hover:scale-[1.01] hover:shadow-md">
+						{#if $mediaType === 'image'}
 							{#if isSupportedImage(file)}
 								<img
 									src={URL.createObjectURL(file)}
 									alt="File preview"
-									class="w-full h-44 object-cover mb-2 rounded-t-lg"
+									class="mb-2 h-44 w-full rounded-t-lg object-cover"
 								/>
 							{:else}
 								<div class="unsupported-preview rounded-t-lg">
 									<p>Preview not available for this format</p>
 								</div>
 							{/if}
-						{:else if $mediaType === MediaType.Video}
-							<!-- svelte-ignore a11y-media-has-caption -->
-							<video src={URL.createObjectURL(file)} class="gallery-preview" />
-						{:else if $mediaType === MediaType.Audio}
-							<audio src={URL.createObjectURL(file)} class="gallery-preview" />
+						{:else if $mediaType === 'video'}
+							<!-- svelte-ignore a11y_media_has_caption -->
+							<video src={URL.createObjectURL(file)} class="gallery-preview"></video>
+						{:else if $mediaType === 'audio'}
+							<audio src={URL.createObjectURL(file)} class="gallery-preview"></audio>
 						{/if}
 						<p class="file-info px-2 pb-2">
 							{file.name.length > 16
@@ -82,14 +87,14 @@
 		<Dialog.Footer>
 			<Button
 				type="submit"
-				on:click={handleConversion}
-				disabled={$selectedFiles.length === 0 || !$mediaType || $loading || !$ffmpegInitialized}
-				class="w-full mt-4"
+				onclick={handleConversion}
+				disabled={$selectedFiles.length === 0 || !$mediaType || $loading || !$isFFmpegInitialized}
+				class="mt-4 w-full"
 			>
 				{#if $loading}
 					<LoaderCircle class="mr-2 size-4 animate-spin" />
 					Converting...
-				{:else if !$ffmpegInitialized}
+				{:else if !$isFFmpegInitialized}
 					Initializing FFMPEG...
 				{:else}
 					Convert

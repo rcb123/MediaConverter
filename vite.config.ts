@@ -1,5 +1,5 @@
-import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig, type Plugin } from 'vite';
+import { sveltekit } from '@sveltejs/kit/vite';
 
 const crossOriginIsolation: Plugin = {
 	name: 'cross-origin-isolation',
@@ -22,8 +22,11 @@ const crossOriginIsolation: Plugin = {
 };
 
 export default defineConfig({
-	plugins: [sveltekit(), crossOriginIsolation],
 	optimizeDeps: {
 		exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/util']
+	},
+	plugins: [sveltekit(), crossOriginIsolation],
+	test: {
+		include: ['src/**/*.{test,spec}.{js,ts}']
 	}
 });

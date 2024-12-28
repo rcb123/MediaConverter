@@ -1,16 +1,25 @@
 <script lang="ts">
-	import type { Writable } from 'svelte/store';
+	import { writable, type Writable } from 'svelte/store';
+	import type { Snippet } from 'svelte';
 	import { groupedConvertedMedia } from '$lib/storage';
 	import { createEventDispatcher } from 'svelte';
 	import { LoaderCircle } from 'lucide-svelte';
 
 	const dispatch = createEventDispatcher();
 
-	export let loadingStoredMedia = true;
-	export let isDraggingOver = false;
-	export let selectedFiles: Writable<File[]>;
+	const {
+		loadingStoredMedia = writable(true),
+		isDraggingOver = writable(false),
+		selectedFiles,
+		children
+	}: {
+		loadingStoredMedia: Writable<boolean>;
+		isDraggingOver: Writable<boolean>;
+		selectedFiles: Writable<File[]>;
+		children?: Snippet<[]>;
+	} = $props();
 
-	let filesPresent = false;
+	let filesPresent = $state(false);
 
 	function handleFileChange(event: Event) {
 		const input = event.target as HTMLInputElement;
@@ -31,7 +40,7 @@
 			selectedFiles.set(Array.from(files));
 			dispatch('fileSelected');
 		}
-		isDraggingOver = false;
+		isDraggingOver.set(false);
 	}
 
 	groupedConvertedMedia.subscribe((media) => {
@@ -45,49 +54,50 @@
 
 <main
 	role="region"
-	class="flex-grow relative container mx-auto py-4"
-	on:drop={handleDrop}
-	on:dragover={(event) => event.preventDefault()}
+	class="container relative mx-auto flex-grow py-4"
+	ondrop={handleDrop}
+	ondragover={(event) => event.preventDefault()}
 >
-	{#if loadingStoredMedia}
+	{#if $loadingStoredMedia}
 		<div class="absolute inset-0 flex items-center justify-center">
 			<LoaderCircle class="size-8 animate-spin" />
 		</div>
-	{:else if !filesPresent}
-		<div
-			class="absolute inset-0 h-full flex flex-col items-center justify-center transition-all z-10"
-		>
-			<label
-				for="file-input"
-				class="cursor-pointer text-center pointer-events-auto transition-all p-[10%]"
-			>
-				<svg
-					class="mx-auto h-12 w-12"
-					stroke="currentColor"
-					fill="none"
-					viewBox="0 0 48 48"
-					aria-hidden="true"
-				>
-					<path
-						d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-						stroke-width="2"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-					/>
-				</svg>
-				<span class="mt-2 block text-sm font-medium">
-					Drag and drop files here, or click to select files
-				</span>
-			</label>
-		</div>
 	{/if}
+	<div
+		class="absolute inset-0 z-10 flex h-full flex-col items-center justify-center transition-all"
+	>
+		<label
+			for="file-input"
+			class="pointer-events-auto cursor-pointer p-[10%] text-center transition-all"
+		>
+			<svg
+				class="mx-auto h-12 w-12"
+				stroke="currentColor"
+				fill="none"
+				viewBox="0 0 48 48"
+				aria-hidden="true"
+			>
+				<path
+					d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				/>
+			</svg>
+			<span class="mt-2 block text-sm font-medium">
+				Drag and drop files here, or click to select files
+			</span>
+		</label>
+	</div>
 	<input
 		id="file-input"
 		type="file"
 		multiple
 		accept="image/*,video/*,audio/*"
-		class="hidden w-full h-full"
-		on:change={handleFileChange}
+		class="hidden h-full w-full"
+		onchange={handleFileChange}
 	/>
-	<slot />
+	{#if children}
+		{@render children()}
+	{/if}
 </main>
