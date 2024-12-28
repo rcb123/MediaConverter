@@ -1,30 +1,21 @@
 <script lang="ts">
-	import { groupConvertedMedia, updatePreview } from '$lib/utils';
+	import { updatePreview } from '$lib/utils';
 	import { loading, mediaType, options, previewUrl } from '$lib/stores';
 	import { writable, get } from 'svelte/store';
-	import { browser } from '$app/environment';
 	import { toast } from 'svelte-sonner';
-	import { onMount } from 'svelte';
 	import {
 		convertedMedia,
 		enforceStorageLimit,
-		togglePersistMedia,
-		updateStorageLimit,
 		persistMedia,
-		storageLimitMB,
-		saveConvertedMediaToStorage,
-		loadConvertedMediaFromStorage,
-		groupedConvertedMedia
+		saveConvertedMediaToStorage
 	} from '$lib/storage';
+
 	import FileConversionModal from '$components/FileConversionModal.svelte';
-	import Dropzone from '$components/Dropzone.svelte';
 	import FFmpegWrapper from '$lib/ffmpeg';
 
 	// Stores
 	const selectedFiles = writable<File[]>([]);
 	const showFileConversionModal = writable(false);
-	const isDraggingOver = writable(false);
-	const loadingStoredMedia = writable(true);
 
 	// FFmpeg Wrapper Instance
 	let ffmpegWrapper: FFmpegWrapper | null = null;
@@ -85,38 +76,6 @@
 			loading.set(false);
 		}
 	}
-
-	onMount(() => {
-		const storedPersistMedia = localStorage.getItem('persistMedia');
-		if (storedPersistMedia !== null) {
-			persistMedia.set(storedPersistMedia === 'true');
-		}
-
-		const storedStorageLimit = localStorage.getItem('storageLimitMB');
-		if (storedStorageLimit !== null) {
-			storageLimitMB.set(Number.parseInt(storedStorageLimit, 10));
-		}
-
-		if (get(persistMedia)) {
-			loadConvertedMediaFromStorage();
-		}
-
-		groupConvertedMedia($convertedMedia);
-
-		loadingStoredMedia.set(false);
-
-		convertedMedia.subscribe((media) => {
-			groupedConvertedMedia.set(groupConvertedMedia(media));
-		});
-
-		persistMedia.subscribe(() => {
-			if (browser) togglePersistMedia();
-		});
-
-		storageLimitMB.subscribe(() => {
-			if (browser) updateStorageLimit();
-		});
-	});
 
 	selectedFiles.subscribe((value) => {
 		updatePreview(value, previewUrl);
@@ -205,5 +164,5 @@
 	}}
 	{selectedFiles}
 >
-	<FileConversionModal showModal={showFileConversionModal} {selectedFiles} {handleConversion} />
 </Dropzone> -->
+<FileConversionModal showModal={showFileConversionModal} {selectedFiles} {handleConversion} />
