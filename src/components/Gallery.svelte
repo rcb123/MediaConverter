@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { convertedMedia, deleteAllMedia, groupedConvertedMedia } from '$lib/storage';
 	import { mediaType, previewUrl, showMediaPreviewModal } from '$lib/stores';
 	import { Download, Trash2 } from 'lucide-svelte';
@@ -6,6 +6,12 @@
 	import { downloadAllMedia } from '$lib/utils';
 
 	import ImageItem from './ImageItem.svelte';
+
+	function previewImage(url: string) {
+		previewUrl.set(url);
+		mediaType.set('image');
+		showMediaPreviewModal.set(true);
+	}
 </script>
 
 <section>
@@ -41,14 +47,7 @@
 				</h3>
 				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
 					{#each items.sort((a, b) => b.date.getTime() - a.date.getTime()) as item (item.id)}
-						<ImageItem
-							{item}
-							on:preview={(event) => {
-								previewUrl.set(event.detail);
-								mediaType.set('image');
-								showMediaPreviewModal.set(true);
-							}}
-						/>
+						<ImageItem {item} {previewImage} />
 					{/each}
 				</div>
 			</div>

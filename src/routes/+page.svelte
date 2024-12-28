@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { updatePreview } from '$lib/utils';
-	import { loading, mediaType, options, previewUrl } from '$lib/stores';
 	import { writable, get } from 'svelte/store';
 	import { toast } from 'svelte-sonner';
 	import {
@@ -9,9 +8,18 @@
 		persistMedia,
 		saveConvertedMediaToStorage
 	} from '$lib/storage';
+	import {
+		isDraggingOver,
+		loading,
+		loadingStoredMedia,
+		mediaType,
+		options,
+		previewUrl
+	} from '$lib/stores';
 
 	import FileConversionModal from '$components/FileConversionModal.svelte';
 	import FFmpegWrapper from '$lib/ffmpeg';
+	import Dropzone from '$components/Dropzone.svelte';
 
 	// Stores
 	const selectedFiles = writable<File[]>([]);
@@ -146,8 +154,7 @@
       Possibly a "Clear All" button to remove all files at the top.
     Big empty space
  -->
-
-<!-- <Dropzone
+<Dropzone
 	{loadingStoredMedia}
 	{isDraggingOver}
 	on:fileSelected={async () => {
@@ -163,6 +170,5 @@
 		}
 	}}
 	{selectedFiles}
->
-</Dropzone> -->
+/>
 <FileConversionModal showModal={showFileConversionModal} {selectedFiles} {handleConversion} />

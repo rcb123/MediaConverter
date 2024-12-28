@@ -2,14 +2,12 @@
 	import { type ConvertedMediaItem, formatMediaFileSize } from '$lib/media';
 	import { Copy, Download, Trash2 } from 'lucide-svelte';
 	import { copyMediaToClipboard } from '$lib/utils';
-	import { createEventDispatcher } from 'svelte';
 	import { deleteMediaItem } from '$lib/storage';
 	import { fade } from 'svelte/transition';
 	import { Button } from './ui/button';
 
-	const { item }: { item: ConvertedMediaItem } = $props();
-
-	const dispatch = createEventDispatcher();
+	const { item, previewImage }: { item: ConvertedMediaItem; previewImage: (url: string) => void } =
+		$props();
 
 	const objectURL = URL.createObjectURL(item.convertedFile);
 </script>
@@ -20,7 +18,7 @@
 >
 	<div
 		class="pointer-events-none absolute right-0 top-0 flex w-full justify-end rounded-t-lg
-           bg-foreground/50 p-2 text-background opacity-0
+           bg-foreground/75 p-2 text-background opacity-0
            transition-all group-hover:pointer-events-auto
            group-hover:opacity-100"
 	>
@@ -49,7 +47,7 @@
 	</div>
 
 	{#if item.type === 'image'}
-		<button class="w-full" onclick={() => dispatch('preview', objectURL)}>
+		<button class="w-full" onclick={() => previewImage(objectURL)}>
 			<img
 				src={objectURL}
 				alt={item.originalName}
