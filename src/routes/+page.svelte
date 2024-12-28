@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { downloadAllMedia, groupConvertedMedia, updatePreview } from '$lib/utils';
 	import { advancedMode, loading, mediaType, options } from '$lib/stores';
-	import { Trash2, Download } from 'lucide-svelte';
-	import GithubIcon from '../assets/GithubIcon.svelte';
+	import { Download, Trash2 } from 'lucide-svelte';
 	import { Switch } from '$components/ui/switch';
 	import { Button } from '$components/ui/button';
 	import { Label } from '$components/ui/label';
@@ -279,17 +278,15 @@
 				<Label for="persist-media">Persist converted media</Label>
 			</div>
 		</div>
-		<p>
-			Made with ❤️ by <a
-				href="https://rezab.vercel.app"
-				class="rounded-sm underline-offset-4 hover:underline"
-				target="_blank"
-			>
-				Reza Banankhah
-			</a>
-		</p>
+
+		{#if typeof SharedArrayBuffer !== 'undefined'}
+			<p class="text-sm text-foreground/60">SharedArrayBuffer is supported</p>
+		{:else}
+			<p class="text-sm text-destructive">SharedArrayBuffer is not supported</p>
+		{/if}
+
 		<div class="flex flex-col gap-4">
-			<div class="flex items-center space-x-2">
+			<div class="flex items-center justify-end space-x-2">
 				<Label for="storage-limit">Storage Limit (MB):</Label>
 				<input
 					id="storage-limit"
@@ -300,9 +297,14 @@
 					class="w-20 rounded border px-2 py-1"
 				/>
 			</div>
+
 			<div class="flex items-center justify-end gap-2">
-				<a href="https://github.com/rcb123/MediaConverter" target="_blank">
-					<GithubIcon size={6} />
+				<a
+					href="https://rezab.vercel.app"
+					class="rounded-sm underline-offset-4 hover:underline"
+					target="_blank"
+				>
+					Made with ❤️ by Reza Banankhah
 				</a>
 			</div>
 		</div>
