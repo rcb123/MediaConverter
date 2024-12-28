@@ -17,10 +17,6 @@ export async function loadConvertedMediaFromStorage(): Promise<void> {
 	try {
 		const storedMedia = await db.getAllItems();
 		convertedMedia.set(storedMedia);
-
-		if (storedMedia.length > 0) {
-			toast.success('Media loaded from storage');
-		}
 	} catch (error) {
 		toast.error('Failed to load media from storage');
 		console.error('Error loading media:', error);
@@ -36,7 +32,6 @@ export async function saveConvertedMediaToStorage(): Promise<void> {
 		for (const item of media) {
 			await db.saveItem(item);
 		}
-		toast.success('Media saved to storage');
 	} catch (error) {
 		toast.error('Failed to save media to storage');
 		console.error('Error saving media:', error);
@@ -123,9 +118,8 @@ export async function togglePersistMedia(): Promise<void> {
 			await deleteAllMedia();
 		}
 		localStorage.setItem('persistMedia', get(persistMedia).toString());
-		toast.success('Media persistence setting updated');
 	} catch (error) {
-		toast.error('Failed to update persistence setting');
+		toast.error('Failed to update media persistence setting');
 		console.error('Error toggling persistence:', error);
 	}
 }

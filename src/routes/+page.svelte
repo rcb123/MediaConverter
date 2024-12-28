@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { isDraggingOver, loading, mediaType, options, previewUrl } from '$lib/stores';
 	import { updatePreview } from '$lib/utils';
 	import { writable, get } from 'svelte/store';
 	import { toast } from 'svelte-sonner';
@@ -8,14 +9,6 @@
 		persistMedia,
 		saveConvertedMediaToStorage
 	} from '$lib/storage';
-	import {
-		isDraggingOver,
-		loading,
-		loadingStoredMedia,
-		mediaType,
-		options,
-		previewUrl
-	} from '$lib/stores';
 
 	import FileConversionModal from '$components/FileConversionModal.svelte';
 	import FFmpegWrapper from '$lib/ffmpeg';
@@ -157,7 +150,6 @@
     Big empty space
  -->
 <Dropzone
-	{loadingStoredMedia}
 	{isDraggingOver}
 	on:fileSelected={async () => {
 		showFileConversionModal.set(true);

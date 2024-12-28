@@ -1,25 +1,19 @@
 <script lang="ts">
 	import { writable, type Writable } from 'svelte/store';
 	import type { Snippet } from 'svelte';
-	import { groupedConvertedMedia } from '$lib/storage';
 	import { createEventDispatcher } from 'svelte';
-	import { LoaderCircle } from 'lucide-svelte';
 
 	const dispatch = createEventDispatcher();
 
 	const {
-		loadingStoredMedia = writable(true),
 		isDraggingOver = writable(false),
 		selectedFiles,
 		children
 	}: {
-		loadingStoredMedia: Writable<boolean>;
 		isDraggingOver: Writable<boolean>;
 		selectedFiles: Writable<File[]>;
 		children?: Snippet<[]>;
 	} = $props();
-
-	let filesPresent = $state(false);
 
 	function handleFileChange(event: Event) {
 		const input = event.target as HTMLInputElement;
@@ -42,14 +36,6 @@
 		}
 		isDraggingOver.set(false);
 	}
-
-	groupedConvertedMedia.subscribe((media) => {
-		if (Object.entries(media).length > 0) {
-			filesPresent = true;
-		} else {
-			filesPresent = false;
-		}
-	});
 </script>
 
 <main
@@ -58,11 +44,6 @@
 	ondrop={handleDrop}
 	ondragover={(event) => event.preventDefault()}
 >
-	{#if $loadingStoredMedia}
-		<div class="absolute inset-0 flex items-center justify-center">
-			<LoaderCircle class="size-8 animate-spin" />
-		</div>
-	{/if}
 	<div
 		class="absolute inset-0 z-10 flex h-full flex-col items-center justify-center transition-all"
 	>
