@@ -1,17 +1,12 @@
 <script lang="ts">
-	import { downloadAllMedia, groupConvertedMedia, updatePreview } from '$lib/utils';
-	import { advancedMode, loading, mediaType, options } from '$lib/stores';
-	import { Download, Trash2 } from 'lucide-svelte';
-	import { Switch } from '$components/ui/switch';
-	import { Button } from '$components/ui/button';
-	import { Label } from '$components/ui/label';
+	import { groupConvertedMedia, updatePreview } from '$lib/utils';
+	import { loading, mediaType, options, previewUrl } from '$lib/stores';
 	import { writable, get } from 'svelte/store';
 	import { browser } from '$app/environment';
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
 	import {
 		convertedMedia,
-		deleteAllMedia,
 		enforceStorageLimit,
 		togglePersistMedia,
 		updateStorageLimit,
@@ -23,15 +18,11 @@
 	} from '$lib/storage';
 	import FileConversionModal from '$components/FileConversionModal.svelte';
 	import Dropzone from '$components/Dropzone.svelte';
-	import ImageItem from '$components/ImageItem.svelte';
-	import MediaPreviewModal from '$components/MediaPreviewModal.svelte';
 	import FFmpegWrapper from '$lib/ffmpeg';
 
 	// Stores
-	const previewUrl = writable<string | null>(null);
 	const selectedFiles = writable<File[]>([]);
 	const showFileConversionModal = writable(false);
-	const showMediaPreviewModal = writable(false);
 	const isDraggingOver = writable(false);
 	const loadingStoredMedia = writable(true);
 
@@ -141,8 +132,8 @@
   ----------- High Level Layout ----------
   1. Header
     * Logo or app name on far left
-    * Navigation / Tabs in the middle ("Gallery", "Settings", etc.)
-    * Global actions on far right (Simple/Advanced mode, Toggling dark/light mode, etc.)
+    * Navigation / Tabs in the middle (Conversion screen and Gallery screen)
+    * Light/Dark mode toggle on the far right
   2. Main Workspace
     * Side Panel (Collapsible)
       - Batch Conversion List / Queue
@@ -150,10 +141,13 @@
       - Drag and Drop Area
       - Conversion panel with options
   3. Footer
+    * Options
+      - Advanced mode toggle
+      - Persist media toggle
+      - Storage limit input
     * Progress Bar
     * Status Indicators (number of items in queue, etc.)
-    * App version
-    * Links to GitHub, etc.
+    * Links to portfolio
   ----------- User Flow -----------
   1. Entry Point: User lands on the main "Convert" screen
   2. File Upload / Drag-and-Drop:
@@ -194,7 +188,7 @@
     Big empty space
  -->
 
-<Dropzone
+<!-- <Dropzone
 	{loadingStoredMedia}
 	{isDraggingOver}
 	on:fileSelected={async () => {
@@ -212,101 +206,4 @@
 	{selectedFiles}
 >
 	<FileConversionModal showModal={showFileConversionModal} {selectedFiles} {handleConversion} />
-	<MediaPreviewModal showModal={showMediaPreviewModal} {previewUrl} />
-	<section>
-		<div class="flex items-center justify-between gap-4 pb-2">
-			<div class="flex h-10 items-center">
-				<h2 class="text-xl font-semibold">Converted Media</h2>
-			</div>
-			{#if $convertedMedia.length > 0}
-				<div class="flex gap-2">
-					<Button
-						onclick={downloadAllMedia}
-						disabled={$convertedMedia.length === 0}
-						variant="ghost"
-					>
-						Download All
-						<Download class="ml-2 h-4 w-4" />
-					</Button>
-					<Button
-						onclick={deleteAllMedia}
-						disabled={$convertedMedia.length === 0}
-						variant="ghost"
-						class="text-destructive"
-					>
-						Delete All
-						<Trash2 class="ml-2 h-4 w-4" />
-					</Button>
-				</div>
-			{/if}
-		</div>
-		{#each Object.entries($groupedConvertedMedia) as [group, items]}
-			{#if Array.isArray(items) && items.length > 0}
-				<div class="mb-6">
-					<h3
-						class="mb-2 border-b border-foreground/30 pb-1 text-lg font-medium tracking-wide text-foreground/80"
-					>
-						{group}
-					</h3>
-					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-						{#each items.sort((a, b) => b.date.getTime() - a.date.getTime()) as item (item.id)}
-							<ImageItem
-								{item}
-								on:preview={(event) => {
-									previewUrl.set(event.detail);
-									mediaType.set('image');
-									showMediaPreviewModal.set(true);
-								}}
-							/>
-						{/each}
-					</div>
-				</div>
-			{/if}
-		{/each}
-	</section>
-</Dropzone>
-
-<footer class="w-full border-t-2 border-foreground/20 py-4">
-	<div class="container flex items-end justify-between">
-		<div class="flex flex-col gap-4">
-			<div class="flex items-center space-x-2">
-				<Switch id="advanced-mode" bind:checked={$advancedMode} />
-				<Label for="advanced-mode">Advanced Options</Label>
-			</div>
-			<div class="flex items-center space-x-2">
-				<Switch id="persist-media" bind:checked={$persistMedia} />
-				<Label for="persist-media">Persist converted media</Label>
-			</div>
-		</div>
-
-		{#if typeof SharedArrayBuffer !== 'undefined'}
-			<p class="text-sm text-foreground/60">SharedArrayBuffer is supported</p>
-		{:else}
-			<p class="text-sm text-destructive">SharedArrayBuffer is not supported</p>
-		{/if}
-
-		<div class="flex flex-col gap-4">
-			<div class="flex items-center justify-end space-x-2">
-				<Label for="storage-limit">Storage Limit (MB):</Label>
-				<input
-					id="storage-limit"
-					type="number"
-					bind:value={$storageLimitMB}
-					min="1"
-					max="1000"
-					class="w-20 rounded border px-2 py-1"
-				/>
-			</div>
-
-			<div class="flex items-center justify-end gap-2">
-				<a
-					href="https://rezab.vercel.app"
-					class="rounded-sm underline-offset-4 hover:underline"
-					target="_blank"
-				>
-					Made with ❤️ by Reza Banankhah
-				</a>
-			</div>
-		</div>
-	</div>
-</footer>
+</Dropzone> -->

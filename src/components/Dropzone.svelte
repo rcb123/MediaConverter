@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { get, writable, type Writable } from 'svelte/store';
+	import { writable, type Writable } from 'svelte/store';
 	import type { Snippet } from 'svelte';
 	import { groupedConvertedMedia } from '$lib/storage';
 	import { createEventDispatcher } from 'svelte';
