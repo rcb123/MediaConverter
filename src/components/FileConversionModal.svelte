@@ -3,7 +3,7 @@
 	import { advancedMode, isFFmpegInitialized, loading, mediaType, options } from '$lib/stores';
 	import { Button } from '$components/ui/button/index.js';
 	import { formatMediaFileSize } from '$lib/media';
-	import { LoaderCircle } from 'lucide-svelte';
+	import { LoaderCircle } from '@lucide/svelte';
 
 	import ConversionOptions from './ConversionOptions.svelte';
 	import * as Dialog from '$components/ui/dialog/index.js';
@@ -49,7 +49,7 @@
 		</Dialog.Header>
 		<div class="flex max-h-[50vh] flex-col overflow-auto px-4">
 			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-				{#each $selectedFiles as file}
+				{#each $selectedFiles as file, i (i)}
 					<div class="rounded-lg border transition-all hover:scale-[1.01] hover:shadow-md">
 						{#if $mediaType === 'image'}
 							{#if isSupportedImage(file)}

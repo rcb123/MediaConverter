@@ -5,7 +5,7 @@
 	import { advancedMode } from '$lib/stores';
 </script>
 
-<footer class="w-full border-t-2 border-foreground/20 py-4">
+<footer class="border-foreground/20 w-full border-t-2 py-4">
 	<div class="container flex items-end justify-between">
 		<div class="flex flex-col gap-4">
 			<div class="flex items-center space-x-2">
@@ -19,9 +19,9 @@
 		</div>
 
 		{#if typeof SharedArrayBuffer !== 'undefined'}
-			<p class="text-sm text-foreground/60">SharedArrayBuffer is supported</p>
+			<p class="text-foreground/60 text-sm">SharedArrayBuffer is supported</p>
 		{:else}
-			<p class="text-sm text-destructive">SharedArrayBuffer is not supported</p>
+			<p class="text-destructive text-sm">SharedArrayBuffer is not supported</p>
 		{/if}
 
 		<div class="flex flex-col gap-4">

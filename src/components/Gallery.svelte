@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { convertedMedia, deleteAllMedia, groupedConvertedMedia } from '$lib/storage';
 	import { mediaType, previewUrl, showMediaPreviewModal } from '$lib/stores';
-	import { Download, Trash2 } from 'lucide-svelte';
+	import { Download, Trash2 } from '@lucide/svelte';
 	import { Button } from '$components/ui/button';
 	import { downloadAllMedia } from '$lib/utils';
 
@@ -37,11 +37,11 @@
 			</div>
 		{/if}
 	</div>
-	{#each Object.entries($groupedConvertedMedia) as [group, items]}
+	{#each Object.entries($groupedConvertedMedia) as [group, items] (group)}
 		{#if Array.isArray(items) && items.length > 0}
 			<div class="mb-6">
 				<h3
-					class="mb-2 border-b border-foreground/30 pb-1 text-lg font-medium tracking-wide text-foreground/80"
+					class="border-foreground/30 text-foreground/80 mb-2 border-b pb-1 text-lg font-medium tracking-wide"
 				>
 					{group}
 				</h3>
