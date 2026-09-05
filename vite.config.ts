@@ -1,5 +1,7 @@
+/// <reference types="vitest/config" />
 import { defineConfig, type Plugin } from 'vite';
 import { sveltekit } from '@sveltejs/kit/vite';
+import tailwindcss from '@tailwindcss/vite';
 
 const crossOriginIsolation: Plugin = {
 	name: 'cross-origin-isolation',
@@ -25,7 +27,7 @@ export default defineConfig({
 	optimizeDeps: {
 		exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/util']
 	},
-	plugins: [sveltekit(), crossOriginIsolation],
+	plugins: [sveltekit(), tailwindcss(), crossOriginIsolation],
 	test: {
 		include: ['src/**/*.{test,spec}.{js,ts}']
 	}

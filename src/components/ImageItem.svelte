@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { type ConvertedMediaItem, formatMediaFileSize } from '$lib/media';
-	import { Copy, Download, Trash2 } from 'lucide-svelte';
+	import { Copy, Download, Trash2 } from '@lucide/svelte';
 	import { copyMediaToClipboard } from '$lib/utils';
 	import { deleteMediaItem } from '$lib/storage';
 	import { fade } from 'svelte/transition';
@@ -9,7 +9,8 @@
 	const { item, previewImage }: { item: ConvertedMediaItem; previewImage: (url: string) => void } =
 		$props();
 
-	const objectURL = URL.createObjectURL(item.convertedFile);
+	// svelte-ignore state_referenced_locally
+	const objectURL = $state.snapshot(URL.createObjectURL(item.convertedFile));
 </script>
 
 <div
@@ -17,8 +18,8 @@
 	out:fade={{ duration: 300 }}
 >
 	<div
-		class="pointer-events-none absolute right-0 top-0 flex w-full justify-end rounded-t-lg
-           bg-foreground/75 p-2 text-background opacity-0
+		class="bg-foreground/75 text-background pointer-events-none absolute top-0 right-0 flex w-full
+           justify-end rounded-t-lg p-2 opacity-0
            transition-all group-hover:pointer-events-auto
            group-hover:opacity-100"
 	>
@@ -42,7 +43,7 @@
 			<Download class="size-4" />
 		</Button>
 		<Button onclick={() => deleteMediaItem(item.id)} size="icon" variant="ghost">
-			<Trash2 class="size-4 stroke-destructive" />
+			<Trash2 class="stroke-destructive size-4" />
 		</Button>
 	</div>
 
@@ -63,6 +64,6 @@
 
 	<div class="px-4 pb-2">
 		<p class="truncate font-semibold">{item.convertedName}</p>
-		<p class="text-sm text-foreground/50">{formatMediaFileSize(item.size)}</p>
+		<p class="text-foreground/50 text-sm">{formatMediaFileSize(item.size)}</p>
 	</div>
 </div>

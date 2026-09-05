@@ -14,6 +14,7 @@
 	import FFmpegWrapper from '$lib/ffmpeg';
 	import Dropzone from '$components/Dropzone.svelte';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 
 	// Stores
 	const selectedFiles = writable<File[]>([]);
@@ -71,7 +72,7 @@
 			showFileConversionModal.set(false);
 
 			toast.success('Conversion completed successfully.');
-			goto('/gallery');
+			goto(resolve('/gallery'));
 		} catch (err) {
 			console.error(err);
 			toast.error('Error occurred during conversion. Please try again.');

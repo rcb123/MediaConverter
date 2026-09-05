@@ -79,7 +79,7 @@
 				{triggerContent}
 			</Select.Trigger>
 			<Select.Content>
-				{#each $formatOptions as { label, value }}
+				{#each $formatOptions as { label, value } (value)}
 					<Select.Item {value}>{label}</Select.Item>
 				{/each}
 			</Select.Content>
@@ -87,7 +87,7 @@
 	</div>
 
 	{#if $advancedMode}
-		<div class="border-t border-foreground/20"></div>
+		<div class="border-foreground/20 border-t"></div>
 		<div>
 			<h3 class="mb-2 text-lg font-semibold">Advanced Options</h3>
 			{#if mediaType === 'audio'}

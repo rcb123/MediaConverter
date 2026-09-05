@@ -96,7 +96,7 @@ class FFmpegWrapper {
 			console.log('FFmpeg initialized successfully.');
 		} catch (error) {
 			console.error('Failed to initialize FFmpeg:', error);
-			throw new Error('FFmpeg initialization failed');
+			throw new Error('FFmpeg initialization failed', { cause: error });
 		}
 	}
 
@@ -192,10 +192,12 @@ class FFmpegWrapper {
 				throw new Error(`Failed to convert file: ${output}`);
 			}
 
-			return new File([output], outputFileName, { type: getMimeType(options.format) });
+			return new File([output.buffer as ArrayBuffer], outputFileName, {
+				type: getMimeType(options.format)
+			});
 		} catch (error) {
 			console.error('Error during file conversion:', error);
-			throw new Error('File conversion failed');
+			throw new Error('File conversion failed', { cause: error });
 		} finally {
 			// Always cleanup files
 			await this.ffmpeg.deleteFile(inputFile.name);
