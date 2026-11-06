@@ -1,8 +1,8 @@
 <script>
-	import { persistMedia, storageLimitMB } from '$lib/storage';
-	import { Switch } from '$components/ui/switch';
-	import { Label } from '$components/ui/label';
-	import { advancedMode } from '$lib/stores';
+	import { persistMedia, storageLimitMB } from '#lib/storage.ts';
+	import { Switch } from '#components/ui/switch/index.ts';
+	import { Label } from '#components/ui/label/index.ts';
+	import { advancedMode } from '#lib/stores.ts';
 </script>
 
 <footer class="border-foreground/20 w-full border-t-2 py-4">

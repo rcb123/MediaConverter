@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { isDraggingOver, loading, mediaType, options, previewUrl } from '$lib/stores';
-	import { updatePreview } from '$lib/utils';
+	import { isDraggingOver, loading, mediaType, options, previewUrl } from '#lib/stores.ts';
+	import { updatePreview } from '#lib/utils.ts';
 	import { writable, get } from 'svelte/store';
 	import { toast } from 'svelte-sonner';
 	import {
@@ -8,11 +8,11 @@
 		enforceStorageLimit,
 		persistMedia,
 		saveConvertedMediaToStorage
-	} from '$lib/storage';
+	} from '#lib/storage.ts';
 
-	import FileConversionModal from '$components/FileConversionModal.svelte';
-	import FFmpegWrapper from '$lib/ffmpeg';
-	import Dropzone from '$components/Dropzone.svelte';
+	import FileConversionModal from '#components/FileConversionModal.svelte';
+	import FFmpegWrapper from '#lib/ffmpeg.ts';
+	import Dropzone from '#components/Dropzone.svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 

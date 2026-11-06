@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { convertedMedia, deleteAllMedia, groupedConvertedMedia } from '$lib/storage';
-	import { mediaType, previewUrl, showMediaPreviewModal } from '$lib/stores';
+	import { convertedMedia, deleteAllMedia, groupedConvertedMedia } from '#lib/storage.ts';
+	import { mediaType, previewUrl, showMediaPreviewModal } from '#lib/stores.ts';
 	import { Download, Trash2 } from '@lucide/svelte';
-	import { Button } from '$components/ui/button';
-	import { downloadAllMedia } from '$lib/utils';
+	import { Button } from '#components/ui/button/index.ts';
+	import { downloadAllMedia } from '#lib/utils.ts';
 
 	import ImageItem from './ImageItem.svelte';
 

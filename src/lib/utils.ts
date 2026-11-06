@@ -1,4 +1,4 @@
-import type { ConvertedMediaItem } from '$lib/media';
+import type { ConvertedMediaItem } from '#lib/media.ts';
 
 import { advancedMode, formatOptions, mediaType } from './stores';
 import { convertedMedia } from './storage';
@@ -10,7 +10,7 @@ import {
 	extendedAudioFormats,
 	extendedImageFormats,
 	extendedVideoFormats
-} from '$lib/media';
+} from '#lib/media.ts';
 
 import JSZip from 'jszip';
 import { toast } from 'svelte-sonner';

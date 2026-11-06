@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button } from '$components/ui/button';
+	import { Button } from '#components/ui/button/index.ts';
 	import { Moon, Sun } from '@lucide/svelte';
 	import { toggleMode } from 'mode-watcher';
 </script>

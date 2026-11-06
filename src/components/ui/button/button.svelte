@@ -38,7 +38,7 @@
 </script>
 
 <script lang="ts">
-	import { cn } from '$components/utils.js';
+	import { cn } from '#components/utils.js';
 
 	let {
 		class: className,

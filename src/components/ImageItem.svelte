@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { type ConvertedMediaItem, formatMediaFileSize } from '$lib/media';
+	import { type ConvertedMediaItem, formatMediaFileSize } from '#lib/media.ts';
 	import { Copy, Download, Trash2 } from '@lucide/svelte';
-	import { copyMediaToClipboard } from '$lib/utils';
-	import { deleteMediaItem } from '$lib/storage';
+	import { copyMediaToClipboard } from '#lib/utils.ts';
+	import { deleteMediaItem } from '#lib/storage.ts';
 	import { fade } from 'svelte/transition';
 	import { Button } from './ui/button';
 

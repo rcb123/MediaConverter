@@ -1,7 +1,7 @@
 import { writable } from 'svelte/store';
-import type { MediaType } from '$lib/media';
-import type { AudioOptions, ImageOptions, VideoOptions } from '$lib/ffmpeg';
-import type { MediaFormat } from '$lib/media';
+import type { MediaType } from '#lib/media.ts';
+import type { AudioOptions, ImageOptions, VideoOptions } from '#lib/ffmpeg.ts';
+import type { MediaFormat } from '#lib/media.ts';
 
 export const mediaType = writable<MediaType | null>(null);
 export const previewUrl = writable<string | null>(null);
