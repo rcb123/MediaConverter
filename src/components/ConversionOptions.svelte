@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { AudioOptions, ImageOptions, VideoOptions } from '$lib/ffmpeg';
+	import type { AudioOptions, ImageOptions, VideoOptions } from '#lib/ffmpeg.ts';
 	import {
 		baseAudioFormats,
 		baseImageFormats,
@@ -10,13 +10,13 @@
 		isMediaFormat,
 		type MediaFormat,
 		type MediaType
-	} from '$lib/media';
+	} from '#lib/media.ts';
 
 	import { writable, type Writable } from 'svelte/store';
-	import { Label } from '$components/ui/label';
-	import { Input } from '$components/ui/input';
+	import { Label } from '#components/ui/label/index.ts';
+	import { Input } from '#components/ui/input/index.ts';
 
-	import * as Select from '$components/ui/select';
+	import * as Select from '#components/ui/select/index.ts';
 	import { onMount } from 'svelte';
 
 	const formatOptions = writable<{ label: string; value: MediaFormat }[]>([]);

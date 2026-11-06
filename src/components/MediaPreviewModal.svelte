@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { writable, type Writable } from 'svelte/store';
-	import { mediaType } from '$lib/stores';
+	import { mediaType } from '#lib/stores.ts';
 
-	import * as Dialog from '$components/ui/dialog/index.js';
+	import * as Dialog from '#components/ui/dialog/index.js';
 
 	const {
 		showModal = writable(false),

@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { loadingStoredMedia, previewUrl, showMediaPreviewModal } from '$lib/stores';
-	import { groupConvertedMedia } from '$lib/utils';
-	import { Toaster } from '$components/ui/sonner';
-	import { browser } from '$app/environment';
+	import { loadingStoredMedia, previewUrl, showMediaPreviewModal } from '#lib/stores.ts';
+	import { groupConvertedMedia } from '#lib/utils.ts';
+	import { Toaster } from '#components/ui/sonner/index.ts';
+	import { browser } from '$app/env';
 	import { ModeWatcher } from 'mode-watcher';
 	import { inject } from '@vercel/analytics';
 	import { get } from 'svelte/store';
@@ -15,11 +15,11 @@
 		storageLimitMB,
 		togglePersistMedia,
 		updateStorageLimit
-	} from '$lib/storage';
+	} from '#lib/storage.ts';
 
-	import MediaPreviewModal from '$components/MediaPreviewModal.svelte';
-	import Header from '$components/Header.svelte';
-	import Footer from '$components/Footer.svelte';
+	import MediaPreviewModal from '#components/MediaPreviewModal.svelte';
+	import Header from '#components/Header.svelte';
+	import Footer from '#components/Footer.svelte';
 
 	import '../app.css';
 

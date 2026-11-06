@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { writable, type Writable } from 'svelte/store';
-	import { advancedMode, isFFmpegInitialized, loading, mediaType, options } from '$lib/stores';
-	import { Button } from '$components/ui/button/index.js';
-	import { formatMediaFileSize } from '$lib/media';
+	import { advancedMode, isFFmpegInitialized, loading, mediaType, options } from '#lib/stores.ts';
+	import { Button } from '#components/ui/button/index.js';
+	import { formatMediaFileSize } from '#lib/media.ts';
 	import { LoaderCircle } from '@lucide/svelte';
 
 	import ConversionOptions from './ConversionOptions.svelte';
-	import * as Dialog from '$components/ui/dialog/index.js';
+	import * as Dialog from '#components/ui/dialog/index.js';
 
 	const {
 		showModal = writable(false),

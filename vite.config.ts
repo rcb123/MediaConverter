@@ -1,6 +1,8 @@
 /// <reference types="vitest/config" />
 import { defineConfig, type Plugin } from 'vite';
 import { sveltekit } from '@sveltejs/kit/vite';
+import adapter from '@sveltejs/adapter-vercel';
+import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import tailwindcss from '@tailwindcss/vite';
 
 const crossOriginIsolation: Plugin = {
@@ -27,7 +29,16 @@ export default defineConfig({
 	optimizeDeps: {
 		exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/util']
 	},
-	plugins: [sveltekit(), tailwindcss(), crossOriginIsolation],
+	plugins: [
+		sveltekit({
+			preprocess: vitePreprocess(),
+			adapter: adapter({
+				runtime: 'nodejs22.x'
+			})
+		}),
+		tailwindcss(),
+		crossOriginIsolation
+	],
 	test: {
 		include: ['src/**/*.{test,spec}.{js,ts}']
 	}

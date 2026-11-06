@@ -3,6 +3,10 @@
 	"private": true,
 	"version": "0.0.1",
 	"type": "module",
+	"imports": {
+		"#lib/*": "./src/lib/*",
+		"#components/*": "./src/components/*"
+	},
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
@@ -20,10 +24,11 @@
 		"@eslint/js": "^10.0.1",
 		"@lucide/svelte": "^1.70.0",
 		"@playwright/test": "^1.65.0",
-		"@sveltejs/adapter-vercel": "^6.3.5",
-		"@sveltejs/kit": "^2.70.4",
+		"@sveltejs/adapter-vercel": "^7.0.2",
+		"@sveltejs/kit": "^3.1.1",
 		"@sveltejs/vite-plugin-svelte": "^7.3.1",
 		"@tailwindcss/vite": "^4.3.4",
+		"@types/node": "^22.20.5",
 		"autoprefixer": "^10.6.2",
 		"bits-ui": "^2.20.6",
 		"clsx": "^2.1.1",
@@ -57,10 +62,12 @@
 		"brace-expansion": "^5.0.12",
 		"devalue": "^5.9.4",
 		"minimatch": "^11.0.5",
-		"cookie": "^0.7.2",
 		"runed": "^0.38.0",
 		"@vercel/nft": {
 			"glob": "^14.0.4"
+		},
+		"@vercel/analytics": {
+			"@sveltejs/kit": "$@sveltejs/kit"
 		}
 	}
 }
