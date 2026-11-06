@@ -25,7 +25,7 @@
 				alt="Enlarged preview"
 				width="800"
 				height="600"
-				class="mx-auto aspect-[800/600] max-h-[80vh] w-full max-w-full rounded-lg object-cover"
+				class="mx-auto aspect-800/600 max-h-[80vh] w-full max-w-full rounded-lg object-cover"
 			/>
 		{:else if $mediaType === 'video'}
 			<!-- svelte-ignore a11y_media_has_caption -->

@@ -40,7 +40,7 @@
 
 <main
 	role="region"
-	class="relative container mx-auto flex-grow py-4"
+	class="relative container mx-auto grow py-4"
 	ondrop={handleDrop}
 	ondragover={(event) => event.preventDefault()}
 >
